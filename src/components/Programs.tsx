@@ -2,113 +2,119 @@ import React, { useState } from 'react';
 import { Atom, Brain, Globe, Database, Rocket, Cpu, Shield, Microscope } from 'lucide-react';
 
 const Programs = () => {
-  const [activeCategory, setActiveCategory] = useState('undergraduate');
+  const [activeCategory, setActiveCategory] = useState('plans');
 
   const categories = [
-    { id: 'undergraduate', label: 'Undergraduate' },
-    { id: 'graduate', label: 'Graduate' },
-    { id: 'doctorate', label: 'Doctorate' },
-    { id: 'research', label: 'Research' }
+    { id: 'plans', label: 'Plans' },
+    { id: 'features', label: 'Features' }
   ];
 
-  const programs = {
-    undergraduate: [
-      {
-        icon: <Atom className="w-8 h-8" />,
-        title: 'Quantum Engineering',
-        description: 'Explore quantum mechanics and its applications in computing.',
-        duration: '4 years',
-        credits: 120
-      },
-      {
-        icon: <Brain className="w-8 h-8" />,
-        title: 'Neural Sciences',
-        description: 'Study artificial intelligence and cognitive systems.',
-        duration: '4 years',
-        credits: 120
-      },
-      {
-        icon: <Globe className="w-8 h-8" />,
-        title: 'Space Technology',
-        description: 'Learn about spacecraft and propulsion systems.',
-        duration: '4 years',
-        credits: 120
-      },
-      {
-        icon: <Database className="w-8 h-8" />,
-        title: 'Data Architecture',
-        description: 'Master future information systems.',
-        duration: '4 years',
-        credits: 120
-      }
-    ],
-    graduate: [
-      {
-        icon: <Rocket className="w-8 h-8" />,
-        title: 'Advanced Propulsion',
-        description: 'Research in spacecraft propulsion technologies.',
-        duration: '2 years',
-        credits: 60
-      },
-      {
-        icon: <Cpu className="w-8 h-8" />,
-        title: 'Quantum Computing',
-        description: 'Advanced study of quantum information systems.',
-        duration: '2 years',
-        credits: 60
-      }
-    ],
-    doctorate: [
-      {
-        icon: <Shield className="w-8 h-8" />,
-        title: 'Cybernetic Systems',
-        description: 'Research in human-machine integration.',
-        duration: '4-5 years',
-        credits: 90
-      },
-      {
-        icon: <Microscope className="w-8 h-8" />,
-        title: 'Nano Engineering',
-        description: 'Advanced research in molecular engineering.',
-        duration: '4-5 years',
-        credits: 90
-      }
-    ],
-    research: [
-      {
-        icon: <Brain className="w-8 h-8" />,
-        title: 'AI Ethics',
-        description: 'Research in artificial intelligence ethics.',
-        duration: 'Varies',
-        credits: null
-      },
-      {
-        icon: <Globe className="w-8 h-8" />,
-        title: 'Space Colonization',
-        description: 'Research in sustainable space habitats.',
-        duration: 'Varies',
-        credits: null
-      }
-    ]
-  };
+  const plans = [
+    {
+      icon: <Atom className="w-8 h-8" />,
+      title: 'Free',
+      description: 'Full access to basic modules',
+      price: '$0',
+      period: 'month',
+      features: [
+        'Full access to basic modules',
+        'Community-driven learning experience',
+        'Submit module requests'
+      ]
+    },
+    {
+      icon: <Rocket className="w-8 h-8" />,
+      title: 'Premium',
+      description: 'Complete access to growing module library',
+      price: '$30',
+      period: 'month',
+      features: [
+        'Complete access to growing module library',
+        'Multi-format learning (text, video, audio)',
+        'Interactive assignments & progress tracking',
+        'Knowledge portfolio builder',
+        'Module update notifications',
+        'Community discussions',
+        'Priority module requests',
+        'Premium support'
+      ]
+    },
+    {
+      icon: <Brain className="w-8 h-8" />,
+      title: 'Enterprise',
+      description: 'For organizations and teams',
+      price: '$35',
+      period: 'user/month',
+      features: [
+        'All Premium features included',
+        'Employee learning management',
+        'Recruitment tools with module-based assessments',
+        'Custom learning paths',
+        'Create private/public modules',
+        'Priority development & support',
+        'Advanced analytics & reporting',
+        'Branded learning environment'
+      ]
+    }
+  ];
+
+  const features = [
+    {
+      icon: <Shield className="w-8 h-8" />,
+      title: "Unique Content",
+      description: "No duplicates across the platform"
+    },
+    {
+      icon: <Brain className="w-8 h-8" />,
+      title: "Expert Created",
+      description: "Created by scientists, lecturers, and subject matter experts"
+    },
+    {
+      icon: <Database className="w-8 h-8" />,
+      title: "Career Linked",
+      description: "Directly linked to job positions"
+    },
+    {
+      icon: <Globe className="w-8 h-8" />,
+      title: "Market Driven",
+      description: "Created based on current market needs"
+    },
+    {
+      icon: <Rocket className="w-8 h-8" />,
+      title: "Always Updated",
+      description: "Reflects latest research, comments, and corrections"
+    },
+    {
+      icon: <Cpu className="w-8 h-8" />,
+      title: "Universal Coverage",
+      description: "Covers all fields of science"
+    },
+    {
+      icon: <Microscope className="w-8 h-8" />,
+      title: "AI Enhanced",
+      description: "Created with AI assistance but expert verified"
+    }
+  ];
 
   return (
     <section className="bg-gray-900 py-24" id="programs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Academic Programs
+            {activeCategory === 'plans' ? 'Choose Your Plan' : 'Our Learning Content'}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Discover our cutting-edge programs designed to prepare you for the challenges of tomorrow.
+            {activeCategory === 'plans' 
+              ? 'Select the perfect plan for your learning journey'
+              : 'Discover what makes our content unique and valuable'}
           </p>
         </div>
 
-        {/* Category Tabs */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           {categories.map((category) => (
             <button
               key={category.id}
+              data-category={category.id}
               onClick={() => setActiveCategory(category.id)}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300
                 ${activeCategory === category.id
@@ -121,45 +127,57 @@ const Programs = () => {
           ))}
         </div>
 
-        {/* Programs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {programs[activeCategory].map((program) => (
-            <div
-              key={program.title}
-              className="group bg-gray-800 rounded-xl p-8 transform transition-all duration-300
-                hover:scale-105 hover:bg-gray-700 cursor-pointer"
-            >
-              <div className="flex items-start gap-4">
-                <div className="text-blue-500 transform transition-transform duration-300
+        {activeCategory === 'plans' ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {plans.map((plan) => (
+              <div
+                key={plan.title}
+                className="group bg-gray-800 rounded-xl p-8 transform transition-all duration-300
+                  hover:scale-105 hover:bg-gray-700 flex flex-col h-full"
+              >
+                <div className="text-blue-500 mb-6 transform transition-transform duration-300
                   group-hover:scale-110 group-hover:text-blue-400">
-                  {program.icon}
+                  {plan.icon}
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white mb-2">{program.title}</h3>
-                  <p className="text-gray-400 mb-4">{program.description}</p>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-blue-400">
-                      Duration: {program.duration}
-                    </span>
-                    {program.credits && (
-                      <span className="text-blue-400">
-                        Credits: {program.credits}
-                      </span>
-                    )}
-                  </div>
+                <h3 className="text-2xl font-semibold text-white mb-2">{plan.title}</h3>
+                <p className="text-gray-400 mb-4">{plan.description}</p>
+                <div className="flex items-baseline mb-6">
+                  <span className="text-3xl font-bold text-white">{plan.price}</span>
+                  <span className="text-gray-400 ml-2">/{plan.period}</span>
                 </div>
+                <ul className="space-y-3 mb-8 flex-grow">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center text-gray-300">
+                      <span className="mr-2">•</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg
+                  hover:bg-blue-600 transition-colors duration-300 mt-auto">
+                  Get Started
+                </button>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-16 text-center">
-          <button className="bg-blue-500 text-white px-8 py-3 rounded-full
-            hover:bg-blue-600 transition-colors duration-300 transform hover:scale-105">
-            Request Program Details
-          </button>
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="group bg-gray-800 rounded-xl p-8 transform transition-all duration-300
+                  hover:scale-105 hover:bg-gray-700"
+              >
+                <div className="text-blue-500 mb-6 transform transition-transform duration-300
+                  group-hover:scale-110 group-hover:text-blue-400">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-400">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

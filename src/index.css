@@ -12,6 +12,42 @@
   .animate-fade-in {
     animation: fadeIn 1s ease-out;
   }
+
+  .animate-particle-float {
+    animation: particleFloat 2s ease-out forwards;
+    animation-duration: var(--particle-speed);
+    transform: rotate(var(--particle-angle));
+  }
+
+  .animate-particle-glow {
+    animation: particleGlow 1s ease-in-out infinite alternate;
+  }
+
+  .animate-portal-pulse {
+    animation: portalPulse 2s ease-in-out infinite;
+  }
+
+  .animate-grid-flow {
+    animation: gridFlow 20s linear infinite;
+  }
+
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.75s ease-out forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.75s ease-in forwards;
 }
 
 @keyframes fadeIn {
@@ -22,6 +58,67 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateX(0) rotate(var(--particle-angle));
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1) translateX(20px) rotate(var(--particle-angle));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) translateX(100px) rotate(var(--particle-angle));
+  }
+}
+
+@keyframes particleGlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes portalPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+@keyframes gridFlow {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(50px);
   }
 }
 

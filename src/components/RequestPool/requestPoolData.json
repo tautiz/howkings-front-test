@@ -1,0 +1,842 @@
+[
+        {
+            "module_name": "Duomenų Analizė",
+            "description": "<p>Išmokite analizuoti duomenis naudojant R ir Python.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 1,
+                    "name": "Programavimas",
+                    "parent_tag_id": null,
+                    "slug": "programavimas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FFD700",
+                    "icon": "code",
+                    "status_id": 7,
+                    "description": "Programavimo kalbos ir įrankiai"
+                },
+                {
+                    "id": 9,
+                    "name": "Python",
+                    "parent_tag_id": null,
+                    "slug": "python",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#3572A5",
+                    "icon": "python",
+                    "status_id": 7,
+                    "description": "Python programavimo kalba"
+                }
+            ]
+        },
+        {
+            "module_name": "Projektų Valdymas",
+            "description": "<p>Mokykitės Agile ir Scrum metodologijų taikymo projektuose.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 2,
+                    "name": "Valdymas",
+                    "parent_tag_id": null,
+                    "slug": "valdymas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FF5733",
+                    "icon": "management",
+                    "status_id": 7,
+                    "description": "Valdymo metodai ir strategijos"
+                },
+                {
+                    "id": 10,
+                    "name": "Agile",
+                    "parent_tag_id": null,
+                    "slug": "agile",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#00BFFF",
+                    "icon": "agile",
+                    "status_id": 7,
+                    "description": "Agile metodologija"
+                }
+            ]
+        },
+        {
+            "module_name": "Grafikos Dizainas",
+            "description": "<p>Sužinokite Adobe Photoshop ir Illustrator pagrindus.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 3,
+                    "name": "Dizainas",
+                    "parent_tag_id": null,
+                    "slug": "dizainas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#8A2BE2",
+                    "icon": "design",
+                    "status_id": 7,
+                    "description": "Grafikos ir vizualinio dizaino kursai"
+                },
+                {
+                    "id": 11,
+                    "name": "Photoshop",
+                    "parent_tag_id": null,
+                    "slug": "photoshop",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#31A8FF",
+                    "icon": "photoshop",
+                    "status_id": 7,
+                    "description": "Adobe Photoshop programinė įranga"
+                }
+            ]
+        },
+        {
+            "module_name": "Kibernetinis Saugumas",
+            "description": "<p>Mokykitės tinklo saugumo ir etinio įsilaužimo pagrindų.</p>",
+            "status_id": 3,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 4,
+                    "name": "IT Saugumas",
+                    "parent_tag_id": null,
+                    "slug": "it-saugumas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#228B22",
+                    "icon": "security",
+                    "status_id": 7,
+                    "description": "Tinklo ir informacijos saugumo kursai"
+                },
+                {
+                    "id": 12,
+                    "name": "Etinis Įsilaužimas",
+                    "parent_tag_id": null,
+                    "slug": "etinis-islauzimasis",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF4500",
+                    "icon": "hack",
+                    "status_id": 7,
+                    "description": "Etinio įsilaužimo technikos"
+                }
+            ]
+        },
+        {
+            "module_name": "Duomenų Bazės",
+            "description": "<p>Išmokite SQL ir duomenų bazių valdymo sistemų pagrindus.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 1,
+                    "name": "Programavimas",
+                    "parent_tag_id": null,
+                    "slug": "programavimas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FFD700",
+                    "icon": "code",
+                    "status_id": 7,
+                    "description": "Programavimo kalbos ir įrankiai"
+                },
+                {
+                    "id": 13,
+                    "name": "SQL",
+                    "parent_tag_id": null,
+                    "slug": "sql",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#F29111",
+                    "icon": "database",
+                    "status_id": 7,
+                    "description": "SQL užklausų kalba"
+                }
+            ]
+        },
+        {
+            "module_name": "Mašininis Mokymasis",
+            "description": "<p>Pagrindai ir pažangūs mašininio mokymosi algoritmai.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 5,
+                    "name": "Dirbtinis Intelektas",
+                    "parent_tag_id": null,
+                    "slug": "dirbtinis-intelektas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#4B0082",
+                    "icon": "ai",
+                    "status_id": 7,
+                    "description": "Dirbtinio intelekto kursai"
+                },
+                {
+                    "id": 14,
+                    "name": "TensorFlow",
+                    "parent_tag_id": null,
+                    "slug": "tensorflow",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF6F00",
+                    "icon": "tensorflow",
+                    "status_id": 7,
+                    "description": "TensorFlow biblioteka"
+                }
+            ]
+        },
+        {
+            "module_name": "Web Dizainas",
+            "description": "<p>Mokykitės HTML, CSS ir JavaScript kuriant modernius tinklalapius.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 6,
+                    "name": "Web Kūrimas",
+                    "parent_tag_id": null,
+                    "slug": "web-kurimas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#1E90FF",
+                    "icon": "web",
+                    "status_id": 7,
+                    "description": "Tinklalapių kūrimo kursai"
+                },
+                {
+                    "id": 15,
+                    "name": "JavaScript",
+                    "parent_tag_id": null,
+                    "slug": "javascript",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#F0DB4F",
+                    "icon": "js",
+                    "status_id": 7,
+                    "description": "JavaScript programavimo kalba"
+                }
+            ]
+        },
+        {
+            "module_name": "Mobiliosios Programos",
+            "description": "<p>Išmokite kurti Android ir iOS programėles naudojant Flutter.</p>",
+            "status_id": 3,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 7,
+                    "name": "Mobilusis Kūrimas",
+                    "parent_tag_id": null,
+                    "slug": "mobilusis-kurimas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#32CD32",
+                    "icon": "mobile",
+                    "status_id": 7,
+                    "description": "Mobiliosios programavimo kursai"
+                },
+                {
+                    "id": 16,
+                    "name": "Flutter",
+                    "parent_tag_id": null,
+                    "slug": "flutter",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#02569B",
+                    "icon": "flutter",
+                    "status_id": 7,
+                    "description": "Flutter frameworkas"
+                }
+            ]
+        },
+        {
+            "module_name": "Debesų Kompiuterija",
+            "description": "<p>Mokykitės AWS ir Azure debesų platformų naudojimo.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 8,
+                    "name": "Debesų Paslaugos",
+                    "parent_tag_id": null,
+                    "slug": "debesu-paslaugos",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FF1493",
+                    "icon": "cloud",
+                    "status_id": 7,
+                    "description": "Debesų kompiuterijos kursai"
+                },
+                {
+                    "id": 17,
+                    "name": "AWS",
+                    "parent_tag_id": null,
+                    "slug": "aws",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF9900",
+                    "icon": "aws",
+                    "status_id": 7,
+                    "description": "Amazon Web Services platforma"
+                },
+                {
+                    "id": 18,
+                    "name": "Azure",
+                    "parent_tag_id": null,
+                    "slug": "azure",
+                    "type": "tag",
+                    "order_column": 3,
+                    "color": "#0078D4",
+                    "icon": "azure",
+                    "status_id": 7,
+                    "description": "Microsoft Azure platforma"
+                }
+            ]
+        },
+        {
+            "module_name": "Dirbtinio Intelekto Etika",
+            "description": "<p>Aptarkite etikos klausimus dirbtinio intelekto srityje.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 5,
+                    "name": "Dirbtinis Intelektas",
+                    "parent_tag_id": null,
+                    "slug": "dirbtinis-intelektas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#4B0082",
+                    "icon": "ai",
+                    "status_id": 7,
+                    "description": "Dirbtinio intelekto kursai"
+                },
+                {
+                    "id": 19,
+                    "name": "Etika",
+                    "parent_tag_id": null,
+                    "slug": "etika",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF69B4",
+                    "icon": "ethics",
+                    "status_id": 7,
+                    "description": "Etikos principai ir gairės"
+                }
+            ]
+        },
+        {
+            "module_name": "IoT ir Prototipų Kūrimas",
+            "description": "<p>Mokykitės sujungti įrenginius ir kurti IoT sprendimus.</p>",
+            "status_id": 3,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 10,
+                    "name": "Technologijos",
+                    "parent_tag_id": null,
+                    "slug": "technologijos",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#00CED1",
+                    "icon": "technology",
+                    "status_id": 7,
+                    "description": "Technologijų kursai ir inovacijos"
+                },
+                {
+                    "id": 20,
+                    "name": "Arduino",
+                    "parent_tag_id": null,
+                    "slug": "arduino",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#B22222",
+                    "icon": "arduino",
+                    "status_id": 7,
+                    "description": "Arduino platforma"
+                }
+            ]
+        },
+        {
+            "module_name": "Blockchain Ir Kriptovaliutos",
+            "description": "<p>Suvokite blockchain technologijos pagrindus ir kriptovaliutų veikimą.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 11,
+                    "name": "Blokų Grandinė",
+                    "parent_tag_id": null,
+                    "slug": "blokų-grandine",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#800080",
+                    "icon": "blockchain",
+                    "status_id": 7,
+                    "description": "Blockchain technologijos kursai"
+                },
+                {
+                    "id": 21,
+                    "name": "Ethereum",
+                    "parent_tag_id": null,
+                    "slug": "ethereum",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#3C3C3D",
+                    "icon": "ethereum",
+                    "status_id": 7,
+                    "description": "Ethereum platforma"
+                },
+                {
+                    "id": 22,
+                    "name": "Bitcoin",
+                    "parent_tag_id": null,
+                    "slug": "bitcoin",
+                    "type": "tag",
+                    "order_column": 3,
+                    "color": "#F7931A",
+                    "icon": "bitcoin",
+                    "status_id": 7,
+                    "description": "Bitcoin kriptovaliuta"
+                }
+            ]
+        },
+        {
+            "module_name": "Virtualiosios Realybės",
+            "description": "<p>Mokykitės kurti VR turinį naudojant Unity.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 12,
+                    "name": "Virtuali Realybė",
+                    "parent_tag_id": null,
+                    "slug": "virtuali-realybe",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#4682B4",
+                    "icon": "vr",
+                    "status_id": 7,
+                    "description": "VR kūrimo kursai"
+                },
+                {
+                    "id": 23,
+                    "name": "Unity",
+                    "parent_tag_id": null,
+                    "slug": "unity",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#000000",
+                    "icon": "unity",
+                    "status_id": 7,
+                    "description": "Unity žaidimų variklis"
+                }
+            ]
+        },
+        {
+            "module_name": "Big Data",
+            "description": "<p>Išmokite valdyti ir analizuoti didelius duomenų kiekius.</p>",
+            "status_id": 3,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 13,
+                    "name": "Duomenų Mokslas",
+                    "parent_tag_id": null,
+                    "slug": "duomenu-mokslas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FFA500",
+                    "icon": "data-science",
+                    "status_id": 7,
+                    "description": "Duomenų mokslo kursai"
+                },
+                {
+                    "id": 24,
+                    "name": "Hadoop",
+                    "parent_tag_id": null,
+                    "slug": "hadoop",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#66CC00",
+                    "icon": "hadoop",
+                    "status_id": 7,
+                    "description": "Hadoop ekosistema"
+                }
+            ]
+        },
+        {
+            "module_name": "Dirbtinio Intelekto Praktikos",
+            "description": "<p>Praktiniai užsiėmimai su dirbtiniu intelektu ir mašininio mokymosi projektais.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 14,
+                    "name": "Praktiniai Kursai",
+                    "parent_tag_id": null,
+                    "slug": "praktiniai-kursai",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#DC143C",
+                    "icon": "practice",
+                    "status_id": 7,
+                    "description": "Praktinių įgūdžių lavinimas"
+                },
+                {
+                    "id": 25,
+                    "name": "TensorFlow",
+                    "parent_tag_id": null,
+                    "slug": "tensorflow",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF6F00",
+                    "icon": "tensorflow",
+                    "status_id": 7,
+                    "description": "TensorFlow biblioteka"
+                }
+            ]
+        },
+        {
+            "module_name": "E-komercijos Strategijos",
+            "description": "<p>Mokykitės efektyvių e-komercijos strategijų ir rinkodaros technikų.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 15,
+                    "name": "Verslo Strategija",
+                    "parent_tag_id": null,
+                    "slug": "verslo-strategija",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#8B0000",
+                    "icon": "strategy",
+                    "status_id": 7,
+                    "description": "Verslo ir rinkodaros kursai"
+                },
+                {
+                    "id": 26,
+                    "name": "SEO",
+                    "parent_tag_id": null,
+                    "slug": "seo",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FFD700",
+                    "icon": "seo",
+                    "status_id": 7,
+                    "description": "Paieškos sistemų optimizavimas"
+                }
+            ]
+        },
+        {
+            "module_name": "Gamifikacija Mokyme",
+            "description": "<p>Aptarkite gamifikacijos principus ir jų taikymą švietime.</p>",
+            "status_id": 3,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 16,
+                    "name": "Švietimo Inovacijos",
+                    "parent_tag_id": null,
+                    "slug": "sveitudo-innovacijos",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#2E8B57",
+                    "icon": "education",
+                    "status_id": 7,
+                    "description": "Švietimo inovacijų kursai"
+                },
+                {
+                    "id": 27,
+                    "name": "Gamifikacija",
+                    "parent_tag_id": null,
+                    "slug": "gamifikacija",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#DA70D6",
+                    "icon": "game",
+                    "status_id": 7,
+                    "description": "Gamifikacijos technikos"
+                }
+            ]
+        },
+        {
+            "module_name": "Virtualios Komandos Vadovavimas",
+            "description": "<p>Mokykitės efektyvaus komandų valdymo nuotoliniu būdu.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 17,
+                    "name": "Komandinis Darbas",
+                    "parent_tag_id": null,
+                    "slug": "komandinis-darbas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FF8C00",
+                    "icon": "teamwork",
+                    "status_id": 7,
+                    "description": "Komandinių įgūdžių lavinimas"
+                },
+                {
+                    "id": 28,
+                    "name": "Nuotolinis Darbas",
+                    "parent_tag_id": null,
+                    "slug": "nuotolinis-darbas",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#20B2AA",
+                    "icon": "remote",
+                    "status_id": 7,
+                    "description": "Nuotolinio darbo technikos"
+                }
+            ]
+        },
+        {
+            "module_name": "Automatizuotas Marketingas",
+            "description": "<p>Išmokite automatizuoti rinkodaros procesus naudojant įvairias platformas.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 18,
+                    "name": "Marketingo Technologijos",
+                    "parent_tag_id": null,
+                    "slug": "marketingo-technologijos",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FF6347",
+                    "icon": "marketing",
+                    "status_id": 7,
+                    "description": "Rinkodaros technologijų kursai"
+                },
+                {
+                    "id": 29,
+                    "name": "HubSpot",
+                    "parent_tag_id": null,
+                    "slug": "hubspot",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF7F50",
+                    "icon": "hubspot",
+                    "status_id": 7,
+                    "description": "HubSpot platforma"
+                }
+            ]
+        },
+        {
+            "module_name": "Robotikos Pagrindai",
+            "description": "<p>Mokykitės robotikos konstrukcijos ir programavimo pagrindus.</p>",
+            "status_id": 3,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 19,
+                    "name": "Robotika",
+                    "parent_tag_id": null,
+                    "slug": "robotika",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#6A5ACD",
+                    "icon": "robot",
+                    "status_id": 7,
+                    "description": "Robotikos kursai"
+                },
+                {
+                    "id": 30,
+                    "name": "Arduino",
+                    "parent_tag_id": null,
+                    "slug": "arduino",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#B22222",
+                    "icon": "arduino",
+                    "status_id": 7,
+                    "description": "Arduino platforma"
+                }
+            ]
+        },
+        {
+            "module_name": "Svetainės Optimizavimas",
+            "description": "<p>Sužinokite, kaip pagerinti svetainės našumą ir vartotojo patirtį.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 20,
+                    "name": "SEO",
+                    "parent_tag_id": null,
+                    "slug": "seo",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#FFA500",
+                    "icon": "seo",
+                    "status_id": 7,
+                    "description": "Paieškos sistemų optimizavimas"
+                },
+                {
+                    "id": 31,
+                    "name": "UX Dizainas",
+                    "parent_tag_id": null,
+                    "slug": "ux-dizainas",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FF69B4",
+                    "icon": "ux",
+                    "status_id": 7,
+                    "description": "Vartotojo patirties dizainas"
+                }
+            ]
+        },
+        {
+            "module_name": "Sociologijos Tyrimai",
+            "description": "<p>Įvadas į sociologinius tyrimų metodus ir analizę.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 21,
+                    "name": "Socialiniai Mokslai",
+                    "parent_tag_id": null,
+                    "slug": "socialiniai-mokslai",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#8B4513",
+                    "icon": "social-science",
+                    "status_id": 7,
+                    "description": "Socialinių mokslų kursai"
+                },
+                {
+                    "id": 32,
+                    "name": "Kokybiniai Tyrimai",
+                    "parent_tag_id": null,
+                    "slug": "kokybiniai-tyrimai",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#FFB6C1",
+                    "icon": "qualitative",
+                    "status_id": 7,
+                    "description": "Kokybinių tyrimų metodai"
+                }
+            ]
+        },
+        {
+            "module_name": "Finansų Analizė",
+            "description": "<p>Mokykitės analizuoti finansinius duomenis ir kurti finansines ataskaitas.</p>",
+            "status_id": 2,
+            "language": "lt",
+            "type": "teacher",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 22,
+                    "name": "Finansai",
+                    "parent_tag_id": null,
+                    "slug": "finansai",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#2F4F4F",
+                    "icon": "finance",
+                    "status_id": 7,
+                    "description": "Finansinių įgūdžių lavinimas"
+                },
+                {
+                    "id": 33,
+                    "name": "Excel",
+                    "parent_tag_id": null,
+                    "slug": "excel",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#217346",
+                    "icon": "excel",
+                    "status_id": 7,
+                    "description": "Microsoft Excel programinė įranga"
+                }
+            ]
+        },
+        {
+            "module_name": "UX/UI Dizainas",
+            "description": "<p>Išmokite kurti intuityvias ir patrauklias vartotojo sąsajas.</p>",
+            "status_id": 1,
+            "language": "lt",
+            "type": "student",
+            "modules_requests_id": null,
+            "tags": [
+                {
+                    "id": 23,
+                    "name": "Dizainas",
+                    "parent_tag_id": null,
+                    "slug": "dizainas",
+                    "type": "module_request",
+                    "order_column": 1,
+                    "color": "#8A2BE2",
+                    "icon": "design",
+                    "status_id": 7,
+                    "description": "Grafikos ir vizualinio dizaino kursai"
+                },
+                {
+                    "id": 34,
+                    "name": "Figma",
+                    "parent_tag_id": null,
+                    "slug": "figma",
+                    "type": "tag",
+                    "order_column": 2,
+                    "color": "#F24E1E",
+                    "icon": "figma",
+                    "status_id": 7,
+                    "description": "Figma dizaino įrankis"
+                }
+            ]
+        }
+    ]
