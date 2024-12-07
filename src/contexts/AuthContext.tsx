@@ -42,20 +42,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (token) {
                 try {
                     const { data } = await getCurrentUser();
-                    setUser(data.user);
+                    setUser(data);
                 } catch (error: any) {
-                    if (error.response?.status === 401) {
-                        try {
-                            const { data } = await refresh();
-                            localStorage.setItem('token', data.access_token);
-                            const userData = await getCurrentUser();
-                            setUser(userData.data.user);
-                        } catch (refreshError: any) {
-                            if (refreshError.response?.status === 401) {
-                                localStorage.removeItem('token');
-                                setUser(null);
-                            }
-                        }
+                    // Token refresh will be handled by axios interceptor
+                    if (error.response?.status !== 401) {
+                        console.error('Error fetching user data:', error);
                     }
                 }
             }
@@ -69,7 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setError(null);
             const { data } = await login({ email, password });
             localStorage.setItem('token', data.access_token);
-            setUser(data.user);
+            const userData = await getCurrentUser();
+            setUser(userData.data);
             toast.success('Successfully logged in!');
         } catch (error: any) {
             const errorMessage = error.response?.status === 401
@@ -92,7 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setError(null);
             const { data } = await register(userData);
             localStorage.setItem('token', data.access_token);
-            setUser(data.user);
+            const userInfo = await getCurrentUser();
+            setUser(userInfo.data);
         } catch (error: any) {
             setError(error.response?.data?.message || 'Registration failed');
             throw error;

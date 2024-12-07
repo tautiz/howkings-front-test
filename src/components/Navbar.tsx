@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, X, Search, Linkedin } from 'lucide-react';
+import { Menu, X, Search, Linkedin, LogOut } from 'lucide-react';
 import TeleportTransition from './TeleportTransition';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
+import { useAuth } from '../contexts/AuthContext';
 import Auth from './Auth';
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [authForm, setAuthForm] = useState<'login' | 'signup' | null>(null);
@@ -116,7 +118,7 @@ const Navbar = () => {
               >
                 <Linkedin className="h-5 w-5 text-gray-300" />
               </a>
-              {showAuthButtons && (
+              {showAuthButtons && !user && (
                 <>
                   <button 
                     onClick={() => setAuthForm('login')}
@@ -130,9 +132,21 @@ const Navbar = () => {
                     className="px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium 
                       border-2 border-white hover:bg-white hover:text-black transition-colors"
                   >
-                    Sign up
+                    Sign Up
                   </button>
                 </>
+              )}
+              {user && (
+                <div className="flex items-center space-x-4">
+                  <span className="text-white">Hello, {user.name}</span>
+                  <button 
+                    onClick={logout}
+                    className="p-2 rounded-full hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
+                    title="Logout"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                </div>
               )}
               <button
                 className="md:hidden p-2 rounded-full hover:bg-gray-800 transition-colors"
@@ -159,7 +173,7 @@ const Navbar = () => {
                 {item}
               </button>
             ))}
-            {showAuthButtons && (
+            {showAuthButtons && !user && (
               <div className="flex flex-col space-y-2 px-3 pt-4">
                 <button 
                   onClick={() => {
@@ -179,7 +193,22 @@ const Navbar = () => {
                   className="w-full px-4 py-2 bg-black text-white rounded-full text-sm font-medium 
                     border-2 border-white hover:bg-white hover:text-black transition-colors"
                 >
-                  Sign up
+                  Sign Up
+                </button>
+              </div>
+            )}
+            {user && (
+              <div className="flex flex-col space-y-2 px-3 pt-4">
+                <span className="text-white">Hello, {user.name}</span>
+                <button 
+                  onClick={() => {
+                    setIsOpen(false);
+                    logout();
+                  }}
+                  className="w-full px-4 py-2 bg-red-500 text-white rounded-full text-sm font-medium 
+                    hover:bg-red-600 transition-colors"
+                >
+                  Logout
                 </button>
               </div>
             )}
