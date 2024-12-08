@@ -18,12 +18,13 @@ export const useCreateRequest = () => {
     }));
   };
 
-  const handleCreateRequest = async (data: RequestData) => {
+  const handleCreateRequest = async (data: RequestData, onSuccess?: () => void) => {
     if (!isAuthenticated) {
       // Store the create request action and show login modal
       setPendingAction({
         type: 'create_request',
-        payload: { data }
+        payload: { data },
+        onComplete: onSuccess
       });
       setAuthForm('login');
       return false;
@@ -32,6 +33,7 @@ export const useCreateRequest = () => {
     try {
       await createRequest(data);
       showToast('Request created successfully!', 'success');
+      onSuccess?.();
       return true;
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -39,7 +41,8 @@ export const useCreateRequest = () => {
       if (axiosError.response?.status === 401) {
         setPendingAction({
           type: 'create_request',
-          payload: { data }
+          payload: { data },
+          onComplete: onSuccess
         });
         setAuthForm('login');
         return false;

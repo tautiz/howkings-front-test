@@ -87,14 +87,10 @@ export const useRequestForm = (onClose: () => void): UseRequestFormReturn => {
     setIsSubmitting(true);
     setSuccess(false);
 
-    const success = await handleCreateRequest(formData);
-
-    if (success) {
+    const success = await handleCreateRequest(formData, () => {
       setSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 500);
-    }
+      onClose();
+    });
 
     setIsSubmitting(false);
   };
