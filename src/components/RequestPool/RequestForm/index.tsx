@@ -30,7 +30,7 @@ const RequestForm: React.FC<RequestFormProps> = ({ onClose }) => {
   useEffect(() => {
     if (tagifyRef.current) {
       tagifyInstance.current = new Tagify(tagifyRef.current, {
-        whitelist: ['custom', 'tags', 'here', 'must be added'],
+        whitelist: ['Science', 'Math', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Economics', 'Psychology', 'Sociology', 'Political Science', 'Anthropology', 'Other'],
         maxTags: 10,
         dropdown: {
           maxItems: 20,
@@ -118,7 +118,6 @@ const RequestForm: React.FC<RequestFormProps> = ({ onClose }) => {
               >
                 <option value="lt">Lithuanian</option>
                 <option value="en">English</option>
-                <option value="ru">Russian</option>
               </select>
               {errors.language && (
                 <p className={errorClasses}>{errors.language}</p>

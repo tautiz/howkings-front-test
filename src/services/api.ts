@@ -121,10 +121,11 @@ export const logout = async () => {
 export const listRequests = () => api.get('/api/module-requests');
 
 export const createRequest = (data: {
-    title: string;
+    module_name: string;
     description: string;
-    module_id: number;
-}) => api.post('/api/requests', data);
+    language: string;
+    tags: string[];
+  }) => api.post('/api/module-requests', data);
 
 export const addVote = (moduleRequestId: number) => 
     api.post(`/api/module-requests/vote`, { 

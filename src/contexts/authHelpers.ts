@@ -22,8 +22,16 @@ export interface AuthResponse {
 }
 
 export interface PendingAction {
-    type: string;
-    payload: any;
+    type: 'vote' | 'create_request';
+    payload: {
+        moduleRequestId?: number;
+        data?: {
+            module_name: string;
+            description: string;
+            language: string;
+            tags: string[];
+        };
+    };
     onComplete?: () => void;
 }
 
@@ -51,19 +59,24 @@ export const executePendingAction = async (pendingAction: PendingAction | null) 
                 const voteResponse = await (await import('../services/api')).addVote(pendingAction.payload.moduleRequestId);
                 if (voteResponse.status === 200) {
                     showToast('Vote submitted successfully!', 'success');
-                } else if (voteResponse.status === 409) {
-                    showToast('You have already voted for this item', 'warning');
                 }
                 break;
             }
-            // Add other action types as needed
+            case 'create_request': {
+                if (pendingAction.payload.data) {
+                    await (await import('../services/api')).createRequest(pendingAction.payload.data);
+                    showToast('Request created successfully!', 'success');
+                }
+                break;
+            }
+            default:
+                console.warn('Unknown pending action type:', pendingAction.type);
         }
-        pendingAction.onComplete?.();
-    } catch (error: any) {
-        if (error?.response?.status === 409) {
-            showToast('You have already voted for this item', 'warning');
-        } else {
-            handleError(error, 'Failed to complete the pending action');
+
+        if (pendingAction.onComplete) {
+            pendingAction.onComplete();
         }
+    } catch (error) {
+        handleError(error);
     }
 };

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useCreateRequest } from '../../../hooks/useCreateRequest';
 
 interface FormData {
   module_name: string;
@@ -12,6 +13,7 @@ interface FormErrors {
   description?: string;
   language?: string;
   tags?: string;
+  submit?: string;
 }
 
 interface UseRequestFormReturn {
@@ -37,6 +39,7 @@ export const useRequestForm = (onClose: () => void): UseRequestFormReturn => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { handleCreateRequest } = useCreateRequest();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -55,10 +58,6 @@ export const useRequestForm = (onClose: () => void): UseRequestFormReturn => {
 
     if (!formData.language) {
       newErrors.language = 'Language is required';
-    }
-
-    if (!formData.tags.length) {
-      newErrors.tags = 'At least one tag is required';
     }
 
     setErrors(newErrors);
@@ -88,32 +87,16 @@ export const useRequestForm = (onClose: () => void): UseRequestFormReturn => {
     setIsSubmitting(true);
     setSuccess(false);
 
-    try {
-      const response = await fetch('https://bos.howkings.eu/api/module-requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    const success = await handleCreateRequest(formData);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to submit request');
-      }
-
+    if (success) {
       setSuccess(true);
       setTimeout(() => {
         onClose();
-      }, 2000);
-    } catch (err) {
-      setErrors(prev => ({
-        ...prev,
-        submit: err instanceof Error ? err.message : 'An unexpected error occurred'
-      }));
-    } finally {
-      setIsSubmitting(false);
+      }, 500);
     }
+
+    setIsSubmitting(false);
   };
 
   const resetForm = useCallback(() => {
