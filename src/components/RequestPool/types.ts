@@ -12,11 +12,13 @@ export interface Tag {
 }
 
 export interface ModuleRequest {
+  id: number;
   module_name: string;
   description: string;
   status_id: number;
   language: string;
   type: 'student' | 'teacher';
   modules_requests_id: number | null;
+  votes_count: number;
   tags: Tag[];
 }

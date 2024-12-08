@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { ModuleRequest } from './types';
 import RequestList from './RequestList';
 import RequestForm from './RequestForm';
 import Pagination from './Pagination';
-import requestPoolData from './requestPoolData.json';
+import { listRequests, addVote } from '../../services/api';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -13,18 +13,46 @@ const RequestPool = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [votedRequests, setVotedRequests] = useState<Set<number>>(new Set());
+  const [requests, setRequests] = useState<ModuleRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleVote = (index: number) => {
-    const newVotedRequests = new Set(votedRequests);
-    if (votedRequests.has(index)) {
-      newVotedRequests.delete(index);
-    } else {
-      newVotedRequests.add(index);
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await listRequests();
+        setRequests(response.data.data);
+      } catch (err) {
+        setError('Failed to fetch requests. Please try again later.');
+        console.error('Error fetching requests:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  const handleVote = async (requestId: number) => {
+    try {
+      const response = await addVote(requestId);
+      
+      if (response.status === 200) {
+        const newVotedRequests = new Set(votedRequests);
+        if (votedRequests.has(requestId)) {
+          newVotedRequests.delete(requestId);
+        } else {
+          newVotedRequests.add(requestId);
+        }
+        setVotedRequests(newVotedRequests);
+      }
+    } catch (err) {
+      console.error('Error voting for request:', err);
+      // You might want to show an error message to the user here
     }
-    setVotedRequests(newVotedRequests);
   };
-
-  const requests: ModuleRequest[] = requestPoolData;
 
   const filteredRequests = requests.filter(request => {
     const searchLower = searchQuery.toLowerCase();
@@ -54,6 +82,30 @@ const RequestPool = () => {
   const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedRequests = filteredRequests.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  if (isLoading) {
+    return (
+      <section className="bg-gray-900 py-24" id="request-pool">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-gray-400">Loading requests...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bg-gray-900 py-24" id="request-pool">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-red-500">{error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-gray-900 py-24" id="request-pool">

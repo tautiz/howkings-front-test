@@ -50,7 +50,8 @@
 									"    pm.expect(responseData.message).to.be.a('string').and.to.have.length.above(0, \"Response message should be informative and user-friendly\");",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -60,6 +61,9 @@
 						}
 					},
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -110,9 +114,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{api_url}}/api/register",
+									"raw": "https://bos.howkings.lt/api/register",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -323,6 +330,9 @@
 						}
 					},
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -367,9 +377,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{api_url}}/api/login",
+									"raw": "https://bos.howkings.lt/api/login",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -601,9 +614,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{api_url}}/api/logout",
+									"raw": "https://bos.howkings.lt/api/logout",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -813,9 +829,12 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{api_url}}/api/refresh",
+									"raw": "https://bos.howkings.lt/api/refresh",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -926,9 +945,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{api_url}}/api/me",
+									"raw": "https://bos.howkings.lt/api/me",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -1077,11 +1099,15 @@
 									"    pm.expect(responseData.tags).to.be.an('array').and.to.not.be.null;",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -1102,9 +1128,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{api_url}}/api/module-requests",
+									"raw": "https://bos.howkings.lt/api/module-requests",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -1117,7 +1146,23 @@
 							"_postman_previewlanguage": "json",
 							"header": [
 								{
-									"key": "Access-Control-Allow-Origin",
+									"key": "Date",
+									"value": "Sat, 07 Dec 2024 23:09:26 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "access-control-allow-origin",
 									"value": "*"
 								},
 								{
@@ -1125,48 +1170,56 @@
 									"value": "no-cache, private"
 								},
 								{
+									"key": "vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "x-powered-by",
+									"value": "PHP/8.4.1"
+								},
+								{
+									"key": "x-ratelimit-limit",
+									"value": "60"
+								},
+								{
+									"key": "x-ratelimit-remaining",
+									"value": "59"
+								},
+								{
+									"key": "cf-cache-status",
+									"value": "DYNAMIC"
+								},
+								{
+									"key": "Report-To",
+									"value": "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=nbkunl3v0QGeFk7fTKTB%2BneuiB3w8cBkT4yBpJWVlkngHb8gKoLdfWoCvytM4UZ6RNMZWNhvmet%2FqgobJtfxwtC%2BoeagTSmucbgaApZar9PuktW3JkCjb173cVZytZW%2F1l4%3D\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+								},
+								{
+									"key": "NEL",
+									"value": "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}"
+								},
+								{
+									"key": "Server",
+									"value": "cloudflare"
+								},
+								{
+									"key": "CF-RAY",
+									"value": "8ee82eee8beabfab-WAW"
+								},
+								{
 									"key": "Content-Encoding",
 									"value": "br"
 								},
 								{
-									"key": "Content-Type",
-									"value": "application/json"
+									"key": "alt-svc",
+									"value": "h3=\":443\"; ma=86400"
 								},
 								{
-									"key": "Date",
-									"value": "Sat, 07 Dec 2024 01:12:06 GMT"
-								},
-								{
-									"key": "Phpdebugbar-Id",
-									"value": "Xe4b29089cbfe5c863abff1752523e818"
-								},
-								{
-									"key": "Server",
-									"value": "Caddy"
-								},
-								{
-									"key": "Vary",
-									"value": "Accept-Encoding"
-								},
-								{
-									"key": "X-Powered-By",
-									"value": "PHP/8.3.13"
-								},
-								{
-									"key": "X-Ratelimit-Limit",
-									"value": "60"
-								},
-								{
-									"key": "X-Ratelimit-Remaining",
-									"value": "59"
-								},
-								{
-									"key": "Content-Length",
-									"value": "186"
+									"key": "server-timing",
+									"value": "cfL4;desc=\"?proto=TCP&rtt=82846&min_rtt=63786&rtt_var=50969&sent=5&recv=7&lost=0&retrans=1&sent_bytes=4170&recv_bytes=933&delivery_rate=19917&cwnd=241&unsent_bytes=0&cid=ec70076db744ee32&ts=379&x=0\""
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"module_name\": \"modulis\",\n            \"description\": \"modulis kuris mokys visko\",\n            \"status_id\": 1,\n            \"language\": \"lt\",\n            \"type\": \"student\",\n            \"modules_requests_id\": null,\n            \"tags\": [\n                {\n                    \"id\": 5,\n                    \"name\": \"1\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"1\",\n                    \"type\": null,\n                    \"order_column\": 5,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 6,\n                    \"description\": null\n                },\n                {\n                    \"id\": 6,\n                    \"name\": \"2\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"2\",\n                    \"type\": null,\n                    \"order_column\": 6,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 6,\n                    \"description\": null\n                },\n                {\n                    \"id\": 7,\n                    \"name\": \"3\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"3\",\n                    \"type\": null,\n                    \"order_column\": 7,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 6,\n                    \"description\": null\n                },\n                {\n                    \"id\": 8,\n                    \"name\": \"4\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"4\",\n                    \"type\": null,\n                    \"order_column\": 8,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 6,\n                    \"description\": null\n                }\n            ]\n        }\n    ]\n}"
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"module_name\": \"modulis\",\n            \"description\": \"modulis kuris mokys visko\",\n            \"status_id\": 4,\n            \"language\": \"lt\",\n            \"type\": \"student\",\n            \"modules_requests_id\": null,\n            \"votes_count\": 2,\n            \"tags\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"\",\n                    \"type\": \"module_request\",\n                    \"order_column\": 1,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 7,\n                    \"description\": null\n                },\n                {\n                    \"id\": 2,\n                    \"name\": \"\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"\",\n                    \"type\": \"module_request\",\n                    \"order_column\": 2,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 7,\n                    \"description\": null\n                },\n                {\n                    \"id\": 3,\n                    \"name\": \"\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"\",\n                    \"type\": \"module_request\",\n                    \"order_column\": 3,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 7,\n                    \"description\": null\n                },\n                {\n                    \"id\": 4,\n                    \"name\": \"\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"\",\n                    \"type\": \"module_request\",\n                    \"order_column\": 4,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 7,\n                    \"description\": null\n                }\n            ]\n        },\n        {\n            \"id\": 2,\n            \"module_name\": \"modulis\",\n            \"description\": \"modulis kuris mokys visko\",\n            \"status_id\": 4,\n            \"language\": \"lt\",\n            \"type\": \"student\",\n            \"modules_requests_id\": null,\n            \"votes_count\": 1,\n            \"tags\": [\n                {\n                    \"id\": 5,\n                    \"name\": \"\",\n                    \"parent_tag_id\": null,\n                    \"slug\": \"\",\n                    \"type\": \"module_request\",\n                    \"order_column\": 5,\n                    \"color\": null,\n                    \"icon\": null,\n                    \"status_id\": 7,\n                    \"description\": null\n                }\n            ]\n        }\n    ]\n}"
 						}
 					]
 				},
@@ -1283,9 +1336,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{api_url}}/api/module-requests",
+									"raw": "https://bos.howkings.lt/api/module-requests",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",
@@ -1405,9 +1461,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{api_url}}/api/module-requests/vote",
+									"raw": "https://bos.howkings.lt/api/module-requests/vote",
+									"protocol": "https",
 									"host": [
-										"{{api_url}}"
+										"bos",
+										"howkings",
+										"lt"
 									],
 									"path": [
 										"api",

@@ -1,6 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://bos.howkings.local';
+
+export interface PendingRequest {
+    method: string;
+    url: string;
+    data?: any;
+}
+
+let pendingRequest: PendingRequest | null = null;
 
 const api = axios.create({
     baseURL: API_URL,
@@ -10,66 +18,70 @@ const api = axios.create({
     }
 });
 
+const showToast = (message: string, type: 'error' | 'success' | 'info' = 'error') => {
+    window.dispatchEvent(new CustomEvent('app:show-toast', {
+        detail: { message, type }
+    }));
+};
+
 // Add request interceptor to add auth token
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });
 
-// Add response interceptor to handle token refresh
-let isRefreshing = false;
-let failedQueue: any[] = [];
-
-const processQueue = (error: any, token: string | null = null) => {
-    failedQueue.forEach(prom => {
-        if (error) {
-            prom.reject(error);
-        } else {
-            prom.resolve(token);
-        }
-    });
-    failedQueue = [];
-};
-
+// Add response interceptor to handle authentication errors
 api.interceptors.response.use(
     (response) => response,
-    async (error) => {
+    async (error: AxiosError) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({ resolve, reject });
-                })
-                .then(token => {
-                    originalRequest.headers.Authorization = `Bearer ${token}`;
-                    return api(originalRequest);
-                })
-                .catch(err => Promise.reject(err));
-            }
-
-            originalRequest._retry = true;
-            isRefreshing = true;
-
-            try {
-                const { data } = await refresh();
-                const newToken = data.access_token;
-                localStorage.setItem('token', newToken);
-                api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-                processQueue(null, newToken);
-                return api(originalRequest);
-            } catch (refreshError) {
-                processQueue(refreshError, null);
-                localStorage.removeItem('token');
-                return Promise.reject(refreshError);
-            } finally {
-                isRefreshing = false;
-            }
+        // Handle 409 Conflict for duplicate votes
+        if (error.response?.status === 409) {
+            showToast(error.response.data?.message || 'Operation not allowed', 'error');
+            return Promise.reject(error);
         }
 
+        // If error is Unauthenticated
+        if (error.response?.data?.error === "Unauthenticated." && originalRequest) {
+            // Store the failed request
+            pendingRequest = {
+                method: originalRequest.method || 'GET',
+                url: originalRequest.url || '',
+                data: originalRequest.data
+            };
+
+            // Clear token and trigger login button click
+            localStorage.removeItem('access_token');
+            
+            // Dispatch event to trigger the main login button
+            window.dispatchEvent(new CustomEvent('auth:show-login'));
+
+            // Return a promise that will be resolved when the user logs in
+            return new Promise((resolve, reject) => {
+                const handleLoginSuccess = async () => {
+                    try {
+                        if (pendingRequest) {
+                            const { method, url, data } = pendingRequest;
+                            pendingRequest = null;
+                            const retryResponse = await api.request({ method, url, data });
+                            resolve(retryResponse);
+                        }
+                    } catch (retryError) {
+                        reject(retryError);
+                    }
+                    window.removeEventListener('auth:login-success', handleLoginSuccess);
+                };
+
+                window.addEventListener('auth:login-success', handleLoginSuccess);
+            });
+        }
+
+        // Handle other errors
+        showToast(error.response?.data?.message || 'An error occurred', 'error');
         return Promise.reject(error);
     }
 );
@@ -83,17 +95,30 @@ export const register = (data: {
     password: string;
 }) => api.post('/api/register', data);
 
-export const login = (data: { email: string; password: string }) => 
-    api.post('/api/login', data);
+export const login = async (data: { email: string; password: string }) => {
+    const response = await api.post('/api/login', data);
+    const { access_token } = response.data;
+    
+    if (access_token) {
+        localStorage.setItem('access_token', access_token);
+        
+        // Dispatch login success event
+        window.dispatchEvent(new CustomEvent('auth:login-success'));
+    }
+    
+    return response;
+};
 
-export const logout = () => api.post('/api/logout');
-
-export const refresh = () => api.post('/api/refresh');
-
-export const getCurrentUser = () => api.get('/api/me');
+export const logout = async () => {
+    try {
+        await api.post('/api/logout');
+    } finally {
+        localStorage.removeItem('access_token');
+    }
+};
 
 // Request pool endpoints
-export const listRequests = () => api.get('/api/requests');
+export const listRequests = () => api.get('/api/module-requests');
 
 export const createRequest = (data: {
     title: string;
@@ -101,7 +126,10 @@ export const createRequest = (data: {
     module_id: number;
 }) => api.post('/api/requests', data);
 
-export const addVote = (requestId: number) => 
-    api.post(`/api/vote`, { request_id: requestId });
+export const addVote = (moduleRequestId: number) => 
+    api.post(`/api/module-requests/vote`, { 
+        module_request_id: moduleRequestId,
+        language: 'EN'
+    });
 
 export default api;

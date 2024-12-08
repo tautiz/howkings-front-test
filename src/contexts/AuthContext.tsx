@@ -1,131 +1,92 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getCurrentUser, login, logout, register, refresh } from '../services/api';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import * as api from '../services/api';
 
 interface User {
     id: number;
-    name: string;
     email: string;
-    profile_photo_url: string;
+    firstName: string;
+    lastName: string;
 }
 
 interface AuthContextType {
     user: User | null;
-    loading: boolean;
-    error: string | null;
+    isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (data: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        phone: string;
-        password: string;
-    }) => Promise<void>;
     logout: () => Promise<void>;
+    showLoginModal: boolean;
+    setShowLoginModal: (show: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(() => {
-        const savedUser = localStorage.getItem('user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     useEffect(() => {
-        checkAuth();
+        // Listen for show login events
+        const handleShowLogin = () => {
+            // Find and click the login button in the navigation
+            const loginButton = document.querySelector('[data-testid="login-button"]') as HTMLElement;
+            if (loginButton) {
+                loginButton.click();
+            }
+        };
+
+        window.addEventListener('auth:show-login', handleShowLogin);
+        
+        return () => {
+            window.removeEventListener('auth:show-login', handleShowLogin);
+        };
     }, []);
 
-    const checkAuth = async () => {
+    const showToast = (message: string, type: 'error' | 'success' | 'info' = 'error') => {
+        window.dispatchEvent(new CustomEvent('app:show-toast', {
+            detail: { message, type }
+        }));
+    };
+
+    const login = async (email: string, password: string) => {
         try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                const savedUser = localStorage.getItem('user');
-                if (savedUser) {
-                    setUser(JSON.parse(savedUser));
-                } else {
-                    // Jei nėra user duomenų localStorage, gauname iš /me endpoint
-                    try {
-                        const { data } = await getCurrentUser();
-                        setUser(data);
-                        localStorage.setItem('user', JSON.stringify(data));
-                    } catch (error: any) {
-                        if (error.response?.status !== 401) {
-                            console.error('Error fetching user data:', error);
-                        }
-                    }
-                }
+            const response = await api.login({ email, password });
+            const { user: userData } = response.data;
+            
+            if (userData) {
+                setUser(userData);
+                setShowLoginModal(false);
+                showToast('Successfully logged in', 'success');
+            } else {
+                throw new Error('No user data received');
             }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleLogin = async (email: string, password: string) => {
-        try {
-            setError(null);
-            const { data } = await login({ email, password });
-            localStorage.setItem('token', data.access_token);
-            
-            // Gauname vartotojo duomenis ir išsaugome
-            const userData = await getCurrentUser();
-            const user = userData.data;
-            setUser(user);
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            toast.success('Successfully logged in!');
-        } catch (error: any) {
-            const errorMessage = error.response?.status === 401
-                ? 'Incorrect email or password'
-                : error.response?.data?.message || 'Login failed. Please try again later.';
-            setError(errorMessage);
-            toast.error(errorMessage);
-            throw new Error(errorMessage);
-        }
-    };
-
-    const handleRegister = async (userData: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        phone: string;
-        password: string;
-    }) => {
-        try {
-            setError(null);
-            await register(userData);
-            await handleLogin(userData.email, userData.password);
-        } catch (error: any) {
-            setError(error.response?.data?.message || 'Registration failed');
+        } catch (error) {
+            console.error('Login error:', error);
+            showToast('Login failed. Please check your credentials.');
             throw error;
         }
     };
 
-    const handleLogout = async () => {
+    const logout = async () => {
         try {
-            await logout();
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            await api.logout();
             setUser(null);
+            showToast('Logged out successfully', 'info');
         } catch (error) {
-            console.error('Logout failed:', error);
+            console.error('Logout error:', error);
+            // Still clear the user state even if the API call fails
+            setUser(null);
+            showToast('Logged out', 'info');
         }
     };
 
-    const value = {
-        user,
-        loading,
-        error,
-        login: handleLogin,
-        register: handleRegister,
-        logout: handleLogout,
-    };
-
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider value={{
+            user,
+            isAuthenticated: !!user,
+            login,
+            logout,
+            showLoginModal,
+            setShowLoginModal
+        }}>
             {children}
         </AuthContext.Provider>
     );
