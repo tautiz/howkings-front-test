@@ -1,0 +1,62 @@
+{
+  "moduleRequests": {
+    "new": {
+      "id": 1,
+      "name": "New",
+      "description": "The request is open for review by the staff",
+      "color": "blue",
+      "icon": "heroicon-o-question-mark-circle",
+      "type": "modules_requests"
+    },
+    "canceled": {
+      "id": 2,
+      "name": "Canceled",
+      "description": "The request canceled by requester it self",
+      "color": "orange",
+      "icon": "heroicon-o-x-circle",
+      "type": "modules_requests"
+    },
+    "rejected": {
+      "id": 3,
+      "name": "Rejected",
+      "description": "The request was rejected by the staff for some reasons (Request will be returned back to requester)",
+      "color": "red",
+      "icon": "heroicon-o-x-mark",
+      "type": "modules_requests"
+    },
+    "active": {
+      "id": 4,
+      "name": "Active",
+      "description": "Request is approved and visible on the website",
+      "color": "green",
+      "icon": "heroicon-o-check",
+      "type": "modules_requests"
+    }
+  },
+  "tags": {
+    "inactive": {
+      "id": 5,
+      "name": "Inactive",
+      "description": "Tag is inactive and not visible on the website",
+      "color": "red",
+      "icon": "heroicon-o-x-mark",
+      "type": "tags"
+    },
+    "active": {
+      "id": 6,
+      "name": "Active",
+      "description": "Tag is approved and visible on the website",
+      "color": "green",
+      "icon": "heroicon-o-check",
+      "type": "tags"
+    },
+    "new": {
+      "id": 7,
+      "name": "new",
+      "description": "",
+      "color": "",
+      "icon": "",
+      "type": "tags"
+    }
+  }
+}
