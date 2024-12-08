@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { ModuleRequest } from './types';
 import RequestList from './RequestList';
-import RequestForm from './RequestForm';
+import RequestForm from './RequestForm/index';
 import Pagination from './Pagination';
 import { listRequests, addVote } from '../../services/api';
 

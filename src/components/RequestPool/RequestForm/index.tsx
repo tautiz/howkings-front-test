@@ -1,76 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { useCountryLanguage } from '../../../hooks/useCountryLanguage';
 import FormField from './FormField';
 import StatusMessage from './StatusMessage';
 import SubmitButton from './SubmitButton';
-
-interface FormData {
-  title: string;
-  category: string;
-  description: string;
-  language: string;
-}
+import Tagify from '@yaireo/tagify';
+import '@yaireo/tagify/dist/tagify.css';
+import './tagify.css';
+import { useRequestForm } from './useRequestForm';
 
 interface RequestFormProps {
   onClose: () => void;
 }
 
 const RequestForm: React.FC<RequestFormProps> = ({ onClose }) => {
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    category: '',
-    description: '',
-    language: 'en'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const { language: detectedLanguage, isLoading: isDetectingLanguage } = useCountryLanguage();
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    success,
+    handleChange,
+    handleTagsChange,
+    handleSubmit,
+    resetForm
+  } = useRequestForm(onClose);
+
+  const tagifyRef = useRef<HTMLInputElement>(null);
+  const tagifyInstance = useRef<Tagify | null>(null);
 
   useEffect(() => {
-    if (detectedLanguage) {
-      setFormData(prev => ({ ...prev, language: detectedLanguage }));
-    }
-  }, [detectedLanguage]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const response = await fetch('https://bos.howkings.eu/api/module-requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+    if (tagifyRef.current) {
+      tagifyInstance.current = new Tagify(tagifyRef.current, {
+        whitelist: ['custom', 'tags', 'here', 'must be added'],
+        maxTags: 10,
+        dropdown: {
+          maxItems: 20,
+          classname: 'tags-dropdown',
+          enabled: 0,
+          closeOnSelect: false
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Sorry, currently we are under construction, please try again later');
-      }
+      tagifyInstance.current.on('change', e => {
+        const tags = JSON.parse(e.detail.value).map((tag: { value: string }) => tag.value);
+        handleTagsChange(tags);
+      });
 
-      setSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-    } finally {
-      setIsSubmitting(false);
+      return () => {
+        if (tagifyInstance.current) {
+          tagifyInstance.current.destroy();
+        }
+      };
     }
-  };
+  }, [handleTagsChange]);
+
+  useEffect(() => {
+    // Reset form when closing
+    return () => resetForm();
+  }, [resetForm]);
 
   const inputClasses = "w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none";
+  const errorClasses = "text-red-500 text-sm mt-1";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -87,78 +76,73 @@ const RequestForm: React.FC<RequestFormProps> = ({ onClose }) => {
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
-            <FormField label="Title">
+            <FormField label="Module Name">
               <input
                 type="text"
-                name="title"
-                value={formData.title}
+                name="module_name"
+                value={formData.module_name}
                 onChange={handleChange}
-                className={inputClasses}
-                placeholder="Enter request title"
+                className={`${inputClasses} ${errors.module_name ? 'border-red-500' : ''}`}
+                placeholder="Enter module name"
                 required
                 disabled={isSubmitting}
               />
-            </FormField>
-            
-            <FormField label="Category">
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className={inputClasses}
-                required
-                disabled={isSubmitting}
-              >
-                <option value="">Select category</option>
-                <option value="computer-science">Computer Science</option>
-                <option value="physics">Physics</option>
-                <option value="biology">Biology</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="mathematics">Mathematics</option>
-                <option value="engineering">Engineering</option>
-              </select>
+              {errors.module_name && (
+                <p className={errorClasses}>{errors.module_name}</p>
+              )}
             </FormField>
 
-            <FormField label="Preferred Language">
-              <select
-                name="language"
-                value={formData.language}
-                onChange={handleChange}
-                className={inputClasses}
-                required
-                disabled={isSubmitting || isDetectingLanguage}
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="it">Italian</option>
-                <option value="pt">Portuguese</option>
-                <option value="ru">Russian</option>
-                <option value="zh">Chinese</option>
-              </select>
-            </FormField>
-            
             <FormField label="Description">
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className={`${inputClasses} h-32`}
-                placeholder="Describe your request in detail..."
+                className={`${inputClasses} h-32 ${errors.description ? 'border-red-500' : ''}`}
+                placeholder="Describe your module..."
                 required
                 disabled={isSubmitting}
               />
+              {errors.description && (
+                <p className={errorClasses}>{errors.description}</p>
+              )}
+            </FormField>
+
+            <FormField label="Language">
+              <select
+                name="language"
+                value={formData.language}
+                onChange={handleChange}
+                className={`${inputClasses} ${errors.language ? 'border-red-500' : ''}`}
+                required
+                disabled={isSubmitting}
+              >
+                <option value="lt">Lithuanian</option>
+                <option value="en">English</option>
+                <option value="ru">Russian</option>
+              </select>
+              {errors.language && (
+                <p className={errorClasses}>{errors.language}</p>
+              )}
+            </FormField>
+
+            <FormField label="Tags">
+              <input
+                ref={tagifyRef}
+                name="tags"
+                className={`${inputClasses} ${errors.tags ? 'border-red-500' : ''}`}
+                placeholder="Add tags..."
+                disabled={isSubmitting}
+              />
+              {errors.tags && (
+                <p className={errorClasses}>{errors.tags}</p>
+              )}
             </FormField>
           </div>
 
-          {error && <StatusMessage type="error" message={error} />}
+          {errors.submit && <StatusMessage type="error" message={errors.submit} />}
           {success && <StatusMessage type="success" message="Request was sent successfully" />}
 
-          <SubmitButton 
-            isSubmitting={isSubmitting} 
-            isDisabled={isDetectingLanguage} 
-          />
+          <SubmitButton isSubmitting={isSubmitting} isDisabled={false} />
         </form>
       </div>
     </div>
