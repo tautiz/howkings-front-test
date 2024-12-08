@@ -1,74 +1,31 @@
-import React, { useState } from 'react';
+// src/components/navbar/Navbar.tsx
+import React from 'react';
 import { Menu, X, Search, Linkedin, LogOut } from 'lucide-react';
-import TeleportTransition from './TeleportTransition';
-import { useFeatureFlag } from '../hooks/useFeatureFlag';
-import { useAuth } from '../contexts/AuthContext';
-import Auth from './Auth';
+import TeleportTransition from '../TeleportTransition';
+import Auth from '../Auth';
+import { useNavbarLogic } from './useNavbarLogic';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [authForm, setAuthForm] = useState<'login' | 'signup' | null>(null);
-  
-  const showAuthButtons = useFeatureFlag('FEATURE_ALLOW_USER_REGISTRATION');
-  const showSearch = useFeatureFlag('FEATURE_ENABLE_SEARCH');
-
-  const handleNavigation = (sectionId: string) => {
-    setIsTransitioning(true);
-    setIsOpen(false);
-    
-    const targetSection = document.getElementById(sectionId === 'plans' || sectionId === 'features' ? 'programs' : sectionId);
-    if (targetSection) {
-      document.body.classList.add('fade-out');
-      
-      setTimeout(() => {
-        targetSection.scrollIntoView({ behavior: 'instant' });
-        
-        // If navigating to Programs section, click the corresponding category button
-        if (sectionId === 'plans' || sectionId === 'features') {
-          const categoryButton = document.querySelector(`[data-category="${sectionId}"]`) as HTMLButtonElement;
-          if (categoryButton) {
-            categoryButton.click();
-          }
-        }
-
-        document.body.classList.remove('fade-out');
-        document.body.classList.add('fade-in');
-        
-        setTimeout(() => {
-          setIsTransitioning(false);
-          document.body.classList.remove('fade-in');
-        }, 1000);
-      }, 750);
-    }
-  };
-
-  const handleLogoClick = () => {
-    setIsTransitioning(true);
-    setIsOpen(false);
-    
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    document.body.classList.add('fade-out');
-    
-    setTimeout(() => {
-      document.body.classList.remove('fade-out');
-      document.body.classList.add('fade-in');
-      
-      setTimeout(() => {
-        setIsTransitioning(false);
-        document.body.classList.remove('fade-in');
-      }, 1000);
-    }, 750);
-  };
-
-  const navigationItems = ['About', 'Request pool', 'Plans', 'Features', 'Research'];
+  const {
+    user,
+    isOpen,
+    isTransitioning,
+    authForm,
+    showAuthButtons,
+    showSearch,
+    handleNavigation,
+    handleLogoClick,
+    setIsOpen,
+    setAuthForm,
+    logout,
+    navigationItems
+  } = useNavbarLogic();
 
   return (
     <>
-      <TeleportTransition 
+      <TeleportTransition
         isActive={isTransitioning} 
-        onComplete={() => setIsTransitioning(false)} 
+        onComplete={() => {/* no-op, valdymas logikoje */}} 
       />
       
       <nav className="fixed w-full z-50 bg-black/80 backdrop-blur-md">

@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowUp } from 'lucide-react';
 import { ModuleRequest } from './types';
 import RequestTag from './RequestTag';
-import { addVote } from '../../services/api';
+import { useVote } from '../../hooks/useVote';
 
 interface RequestListProps {
   requests: ModuleRequest[];
@@ -11,6 +11,8 @@ interface RequestListProps {
 }
 
 const RequestList: React.FC<RequestListProps> = ({ requests, onVote, votedRequests }) => {
+  const { handleVote: handleVoteAction } = useVote();
+
   const showToast = (message: string, type: 'error' | 'success' | 'info' = 'error') => {
     window.dispatchEvent(new CustomEvent('app:show-toast', {
       detail: { message, type }
@@ -18,15 +20,11 @@ const RequestList: React.FC<RequestListProps> = ({ requests, onVote, votedReques
   };
 
   const handleVote = async (request: ModuleRequest, index: number) => {
-    try {
-      const response = await addVote(request.id);
-      
-      if (response.status === 200) {
-        showToast('Vote added successfully!', 'success');
-        onVote(index);
-      }
-    } catch (err: any) {
-      console.error('Error voting for request:', err);
+    const success = await handleVoteAction(request.id);
+    if (success) {
+      showToast('Vote added successfully!', 'success');
+      onVote(index);
+    } else {
       // Let the API interceptor handle the error toast
     }
   };
