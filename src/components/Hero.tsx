@@ -47,7 +47,11 @@ const Hero = () => {
         </div>
       )}
 
-      <div className="relative min-h-screen bg-gradient-to-b from-gray-900 to-black overflow-hidden">
+      <div 
+        className="relative min-h-screen bg-gradient-to-b from-gray-900 to-black overflow-hidden"
+        role="region"
+        aria-label="Hero Section"
+      >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute w-full h-full bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072')] 
             bg-cover bg-center opacity-20"></div>

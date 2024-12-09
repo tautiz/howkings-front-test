@@ -85,7 +85,11 @@ const RequestPool = () => {
 
   if (isLoading) {
     return (
-      <section className="bg-gray-900 py-24" id="request-pool">
+      <section 
+        className="bg-gray-900 py-24" 
+        id="request-pool" 
+        role="region"
+        aria-label="Request Pool">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-gray-400">Loading requests...</p>
@@ -97,7 +101,11 @@ const RequestPool = () => {
 
   if (error) {
     return (
-      <section className="bg-gray-900 py-24" id="request-pool">
+      <section 
+        className="bg-gray-900 py-24" 
+        id="request-pool" 
+        role="region"
+        aria-label="Request Pool">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-red-500">{error}</p>
@@ -108,7 +116,11 @@ const RequestPool = () => {
   }
 
   return (
-    <section className="bg-gray-900 py-24" id="request-pool">
+    <section 
+      className="bg-gray-900 py-24" 
+      id="request-pool" 
+      role="region"
+      aria-label="Request Pool">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">

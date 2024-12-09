@@ -28,7 +28,11 @@ const About = () => {
   ];
 
   return (
-    <section className="bg-black py-24" id="about">
+    <section 
+      className="bg-black py-24" 
+      id="about"
+      role="region"
+      aria-label="About Howkings University">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">

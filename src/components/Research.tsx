@@ -3,7 +3,11 @@ import { Search, Play, Book, Cpu, Link, RefreshCcw, Globe, BrainCircuit } from '
 
 const Research = () => {
   return (
-    <section className="bg-black py-24" id="research">
+    <section 
+      className="bg-black py-24" 
+      id="research"
+      role="region"
+      aria-label="Research and Innovation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">

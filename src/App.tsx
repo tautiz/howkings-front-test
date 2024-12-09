@@ -54,11 +54,13 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
-      <Hero />
-      <Programs />
-      <About />
-      <RequestPool />
-      <Research />
+      <main>
+        <Hero />
+        <Programs />
+        <About />
+        <RequestPool />
+        <Research />
+      </main>
       <Footer />
       <ToastContainer 
         position="top-right"
