@@ -59,20 +59,20 @@ const RequestPool = () => {
     
     // Search in module name and description
     const matchesNameOrDesc = 
-      request.module_name.toLowerCase().includes(searchLower) ||
-      request.description.toLowerCase().includes(searchLower);
+      (request.module_name?.toLowerCase() || '').includes(searchLower) ||
+      (request.description?.toLowerCase() || '').includes(searchLower);
 
     // Search in tags (both module_request and regular tags)
-    const matchesTags = request.tags.some(tag => 
-      tag.name.toLowerCase().includes(searchLower) ||
-      tag.description.toLowerCase().includes(searchLower)
-    );
+    const matchesTags = request.tags?.some(tag => 
+      (tag.name?.toLowerCase() || '').includes(searchLower) ||
+      (tag.description?.toLowerCase() || '').includes(searchLower)
+    ) || false;
 
     // Search in category (module_request type tags)
-    const matchesCategory = request.tags.some(tag => 
+    const matchesCategory = request.tags?.some(tag => 
       tag.type === 'module_request' && (
-        tag.name.toLowerCase().includes(searchLower) ||
-        tag.description.toLowerCase().includes(searchLower)
+        (tag.name?.toLowerCase() || '').includes(searchLower) ||
+        (tag.description?.toLowerCase() || '').includes(searchLower)
       )
     );
 
