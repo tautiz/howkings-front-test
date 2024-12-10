@@ -7,6 +7,13 @@ interface AuthContextType {
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    register: (data: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+        password: string;
+    }) => Promise<void>;
     showLoginModal: boolean;
     setShowLoginModal: (show: boolean) => void;
     setPendingAction: (action: import('./authHelpers').PendingAction | null) => void;

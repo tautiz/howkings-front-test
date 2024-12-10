@@ -104,6 +104,39 @@ export const useAuthProvider = () => {
         }
     };
 
+    const register = async (data: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+        password: string;
+    }) => {
+        try {
+            const response = await api.register(data);
+            const authResponse = response.data as AuthResponse;
+
+            if (authResponse.status === 'success' && authResponse.data.user && authResponse.data.tokens) {
+                const { user: userData, tokens } = authResponse.data;
+                setAuthState(userData, tokens.access_token, tokens.refresh_token);
+
+                setAuthForm(null);
+                showToast(authResponse.message || 'Registration successful', 'success');
+
+                // Execute pending action if exists
+                await executePendingAction(pendingAction);
+                setPendingAction(null);
+
+                // Dispatch login success event
+                window.dispatchEvent(new CustomEvent('auth:login-success'));
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } catch (error) {
+            handleError(error);
+            throw error;
+        }
+    };
+
     const logout = async () => {
         try {
             await api.logout();
@@ -124,6 +157,7 @@ export const useAuthProvider = () => {
             isAuthenticated: false,
             login: async () => { /* laukiam kol isInitialized taps true */ },
             logout: async () => { /* laukiam kol isInitialized taps true */ },
+            register: async () => { /* laukiam kol isInitialized taps true */ },
             showLoginModal,
             setShowLoginModal,
             setPendingAction,
@@ -138,6 +172,7 @@ export const useAuthProvider = () => {
         isAuthenticated,
         login,
         logout,
+        register,
         showLoginModal,
         setShowLoginModal,
         setPendingAction,
