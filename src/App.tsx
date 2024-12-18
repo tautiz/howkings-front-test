@@ -10,19 +10,32 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { initializeUserback, updateUserData } from './services/userbackService';
+import { analyticsService } from './services/analyticsService';
 import Auth from './components/Auth';
+import CookieConsent from './components/CookieConsent';
 
 function AppContent() {
   const { user, authForm, setAuthForm } = useAuth();
 
-  // Initialize Userback when component mounts
+  // Initialize Userback and analytics when component mounts
   useEffect(() => {
     initializeUserback(user);
+    analyticsService.initializeAnalytics();
   }, []);
 
   // Update user data when user changes
   useEffect(() => {
     updateUserData(user);
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      analyticsService.trackEvent({
+        action: 'user_login',
+        category: 'authentication',
+        label: user.email
+      });
+    }
   }, [user]);
 
   useEffect(() => {
@@ -75,6 +88,7 @@ function AppContent() {
         theme="dark"
         style={{ zIndex: 9999 }}
       />
+      <CookieConsent />
       {authForm && (
         <Auth
           initialForm={authForm}

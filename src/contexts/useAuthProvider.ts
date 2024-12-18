@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import * as api from '../services/api';
 import { AuthResponse, User, PendingAction, showToast, handleError, executePendingAction } from './authHelpers';
+import { analyticsService } from '../services/analyticsService';
 
 function decodeJWT(token: string): { exp?: number } {
     // Paprastas JWT dekodavimas (be patikrinimo), tik pavyzdžiui.
@@ -78,6 +79,11 @@ export const useAuthProvider = () => {
     }, []);
 
     const login = async (email: string, password: string) => {
+        // Track login attempt
+        analyticsService.trackFormInteraction('login-form', 'start', {
+            email_domain: email.split('@')[1]
+        });
+
         try {
             const response = await api.login({ email, password });
             const authResponse = response.data as AuthResponse;
@@ -86,19 +92,35 @@ export const useAuthProvider = () => {
                 const { user: userData, tokens } = authResponse.data;
                 setAuthState(userData, tokens.access_token, tokens.refresh_token);
 
+                // Track successful login
+                analyticsService.trackFormInteraction('login-form', 'complete', {
+                    user_id: userData.id,
+                    user_type: userData.type || 'standard'
+                });
+
+                // Update user properties
+                analyticsService.setUserProperties({
+                    userId: userData.id,
+                    userType: userData.type || 'standard',
+                    lastLoginDate: new Date().toISOString()
+                });
+
                 setAuthForm(null);
                 showToast(authResponse.message || 'Successfully logged in', 'success');
 
-                // Execute pending action if exists
                 await executePendingAction(pendingAction);
                 setPendingAction(null);
 
-                // Dispatch login success event
                 window.dispatchEvent(new CustomEvent('auth:login-success'));
             } else {
                 throw new Error('Invalid response format');
             }
         } catch (error) {
+            // Track login error
+            analyticsService.trackFormInteraction('login-form', 'error', {
+                error_type: error.message || 'Unknown error'
+            });
+
             showToast('Invalid credentials', 'error');
             throw error;
         }
@@ -111,6 +133,11 @@ export const useAuthProvider = () => {
         phone: string;
         password: string;
     }) => {
+        // Track form submission start
+        analyticsService.trackFormInteraction('registration-form', 'start', {
+            has_phone: !!data.phone
+        });
+
         try {
             const response = await api.register(data);
             const authResponse = response.data as AuthResponse;
@@ -119,6 +146,19 @@ export const useAuthProvider = () => {
                 const { user: userData, tokens } = authResponse.data;
                 setAuthState(userData, tokens.access_token, tokens.refresh_token);
 
+                // Track successful registration
+                analyticsService.trackFormInteraction('registration-form', 'complete', {
+                    user_id: userData.id,
+                    has_phone: !!data.phone
+                });
+
+                // Set user properties for future tracking
+                analyticsService.setUserProperties({
+                    userId: userData.id,
+                    userType: userData.type || 'standard',
+                    registrationDate: new Date().toISOString()
+                });
+
                 setAuthForm(null);
                 showToast(authResponse.message || 'Registration successful', 'success');
 
@@ -126,13 +166,18 @@ export const useAuthProvider = () => {
                 await executePendingAction(pendingAction);
                 setPendingAction(null);
 
-                // Dispatch login success event
-                window.dispatchEvent(new CustomEvent('auth:login-success'));
+                // Dispatch registration success event
+                window.dispatchEvent(new CustomEvent('auth:registration-success'));
             } else {
                 throw new Error('Invalid response format');
             }
         } catch (error) {
-            handleError(error);
+            // Track registration error
+            analyticsService.trackFormInteraction('registration-form', 'error', {
+                error_type: error.message || 'Unknown error'
+            });
+            
+            showToast('Registration failed', 'error');
             throw error;
         }
     };

@@ -32,12 +32,9 @@ const RequestList: React.FC<RequestListProps> = ({ requests, onVote, votedReques
   return (
     <>
       {requests.map((request, index) => {
-        console.log('Request data:', request); // Debug log
         const mainTag = request.tags?.find(tag => tag.type === 'module_request');
         const subTags = request.tags?.filter(tag => tag.type === 'tag') || [];
         
-        console.log('Tags:', { mainTag, subTags }); // Debug log
-
         return (
           <div
             key={request.id}
