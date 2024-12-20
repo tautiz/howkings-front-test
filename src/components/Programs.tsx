@@ -14,8 +14,9 @@ const Programs = () => {
       icon: <Atom className="w-8 h-8" />,
       title: 'Free',
       description: 'Full access to basic modules',
-      price: '$0',
+      price: '0 €',
       period: 'month',
+      buttonText: 'Get Started for Free',
       features: [
         'Request new modules you want to learn or teach in our Request pool!',
         'Limited Access all modules!',
@@ -26,8 +27,9 @@ const Programs = () => {
       icon: <Rocket className="w-8 h-8" />,
       title: 'Premium',
       description: 'Complete access to growing module library',
-      price: '$30',
+      price: '29.99 €',
       period: 'month',
+      buttonText: 'Save your spot<br/>Now for <strong style="font-size: 1.3em">5€</strong>',
       features: [
         'Complete access to growing module library',
         'Multi-format learning (text, video, audio)',
@@ -43,8 +45,9 @@ const Programs = () => {
       icon: <Brain className="w-8 h-8" />,
       title: 'Enterprise',
       description: 'For organizations and teams',
-      price: '$35',
+      price: '35 €',
       period: 'user/month',
+      buttonText: 'Save your spot<br/>Now for <strong style="font-size: 1.3em">5€</strong>',
       features: [
         'All Premium features included',
         'Employee learning management',
@@ -157,10 +160,14 @@ const Programs = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg
-                  hover:bg-blue-600 transition-colors duration-300 mt-auto">
-                  Get Started
-                </button>
+                <a 
+                  href="https://www.indiegogo.com/projects/howkings-university/x/38202829#/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg
+                    hover:bg-blue-600 transition-colors duration-300 mt-auto text-center"
+                  dangerouslySetInnerHTML={{ __html: plan.buttonText }}
+                />
               </div>
             ))}
           </div>
