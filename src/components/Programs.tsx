@@ -17,9 +17,9 @@ const Programs = () => {
       price: '$0',
       period: 'month',
       features: [
-        'Full access to basic modules',
-        'Community-driven learning experience',
-        'Submit module requests'
+        'Request new modules you want to learn or teach in our Request pool!',
+        'Limited Access all modules!',
+        'If you are a lecturer, scientist, or subject matter expert - publish your educational modules, research articles, or even your existing book!',
       ]
     },
     {
