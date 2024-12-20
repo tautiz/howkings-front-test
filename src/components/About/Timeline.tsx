@@ -12,14 +12,14 @@ const Timeline: React.FC = () => {
     {
       date: '2024 Q4',
       title: 'Launch Website',
-      description: 'Soon we will launch initial Howkings website to introduce the idea of Howkings University, as well as to gather requests on what people want to learn and teach',
+      description: 'We launched initial Howkings website to introduce the idea of Howkings University, as well as to gather requests on what people want to learn and teach',
       color: 'green',
       align: 'right'
     },
     {
       date: '2024 Q4',
       title: 'Pre-Seed Round',
-      description: 'We are seeking a $250K pre-seed investment to fully finish developing the MVP and create the first 50 modules',
+      description: 'We are seeking a $250K pre-seed investment to fully finish developing the MVP and create the first 1000 modules',
       color: 'blue',
       align: 'left'
     },
