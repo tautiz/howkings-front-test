@@ -17,10 +17,12 @@
   },
   "dependencies": {
     "@greatsumini/react-facebook-login": "^3.3.3",
+    "@types/crypto-js": "^4.2.2",
     "@types/yaireo__tagify": "^4.27.0",
     "@userback/react": "^0.3.7",
     "@yaireo/tagify": "^4.32.2",
     "axios": "^1.7.9",
+    "crypto-js": "^4.2.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

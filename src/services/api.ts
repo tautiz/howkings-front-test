@@ -119,6 +119,10 @@ export const login = async (email: string, password: string) => {
     return response;
 };
 
+export const validateToken = () => api.get<ApiResponse>('/auth/validate-token');
+export const refreshToken = (refreshToken: string) => 
+    api.post<ApiResponse>('/auth/refresh-token', { refresh_token: refreshToken });
+
 export const logout = async () => {
     try {
         await api.post<ApiResponse>('/api/logout');

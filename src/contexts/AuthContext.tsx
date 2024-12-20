@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as api from '../services/api';
 import { analyticsService } from '../services/analyticsService';
+import { tokenValidationService } from '../services/tokenValidationService';
 
 interface User {
   id: string;
@@ -16,6 +17,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
+  handleInvalidToken: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,22 +25,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const handleInvalidToken = () => {
+    setUser(null);
+    tokenValidationService.clearAuthData();
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+  };
 
   useEffect(() => {
-    // Inicializuojam analytics
-    analyticsService.initializeAnalytics();
+    const initializeAuth = async () => {
+      if (isInitialized) return;
 
-    // Bandome atstatyti vartotojo sesiją
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Failed to parse stored user:', e);
-        localStorage.removeItem('user');
+      analyticsService.initializeAnalytics();
+
+      // Jei esame login puslapyje, nereikia tikrinti tokeno
+      if (window.location.pathname === '/login') {
+        setIsInitialized(true);
+        return;
       }
-    }
-  }, []);
+
+      // Tikriname token'o galiojimą
+      const isTokenValid = await tokenValidationService.validateToken();
+      
+      if (!isTokenValid) {
+        handleInvalidToken();
+        setIsInitialized(true);
+        return;
+      }
+
+      // Bandome atstatyti vartotojo sesiją
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error('Failed to parse stored user:', e);
+          handleInvalidToken();
+        }
+      }
+      setIsInitialized(true);
+    };
+
+    initializeAuth();
+  }, [isInitialized]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -51,10 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Išsaugom vartotojo duomenis
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('access_token', tokens.access_token);
-        if (tokens.refresh_token) {
-          localStorage.setItem('refresh_token', tokens.refresh_token);
-        }
+        tokenValidationService.saveTokens(tokens.access_token, tokens.refresh_token);
 
         // Siunčiam analytics įvykį
         analyticsService.trackEvent({
@@ -100,10 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Išsaugom vartotojo duomenis
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('access_token', tokens.access_token);
-        if (tokens.refresh_token) {
-          localStorage.setItem('refresh_token', tokens.refresh_token);
-        }
+        tokenValidationService.saveTokens(tokens.access_token, tokens.refresh_token);
 
         // Siunčiam analytics įvykį
         analyticsService.trackEvent({
@@ -132,31 +158,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await api.logout();
-      setUser(null);
-      setError(null);
-      localStorage.removeItem('user');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      
-      // Siunčiam analytics įvykį
+    } catch (err: any) {
+      console.error('Logout error:', err);
+      // Jei gauname 401, reiškia token'as jau negalioja
+      if (err.response?.status === 401) {
+        analyticsService.trackEvent({
+          action: 'logout',
+          category: 'auth',
+          label: 'token_expired'
+        });
+      }
+    } finally {
+      // Visada išvalome vartotojo duomenis
+      handleInvalidToken();
       analyticsService.trackEvent({
         action: 'logout',
         category: 'auth',
         label: 'success'
-      });
-    } catch (err: any) {
-      console.error('Logout error:', err);
-      // Net jei įvyko klaida, vis tiek išvalome vietinius duomenis
-      setUser(null);
-      localStorage.removeItem('user');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      
-      // Siunčiam analytics įvykį apie klaidą
-      analyticsService.trackEvent({
-        action: 'logout',
-        category: 'auth',
-        label: 'error'
       });
     }
   };
@@ -169,7 +187,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         error,
         login,
         register,
-        logout
+        logout,
+        handleInvalidToken
       }}
     >
       {children}

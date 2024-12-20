@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar';
 import Hero from './components/Hero';
 import Programs from './components/Programs';
@@ -15,13 +16,23 @@ import Auth from './components/Auth';
 import CookieConsent from './components/CookieConsent';
 
 function AppContent() {
-  const { user, authForm, setAuthForm } = useAuth();
+  const { user, authForm, setAuthForm, handleInvalidToken } = useAuth();
 
   // Initialize Userback and analytics when component mounts
   useEffect(() => {
     initializeUserback(user);
     analyticsService.initializeAnalytics();
-  }, []);
+
+    // Klausome token'o invalidacijos įvykio
+    const handleTokenInvalid = () => {
+      handleInvalidToken();
+    };
+
+    window.addEventListener('auth:token-invalid', handleTokenInvalid);
+    return () => {
+      window.removeEventListener('auth:token-invalid', handleTokenInvalid);
+    };
+  }, [handleInvalidToken]);
 
   // Update user data when user changes
   useEffect(() => {
@@ -101,9 +112,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 
