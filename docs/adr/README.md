@@ -36,6 +36,7 @@ Architecture Decision Records (ADR) yra dokumentai, kurie aprašo svarbius archi
 ## ADR sąrašas
 
 1. [Autentifikacijos implementacija](./0001-authentication-implementation.md)
+2. [Vartotojų Registracijos Implementacija](./0002-user-registration.md)
 
 ## Kaip pridėti naują ADR?
 
@@ -82,4 +83,3 @@ Data: YYYY-MM-DD
 ## Papildoma informacija
 
 [Nuorodos į dokumentaciją, straipsnius, etc.]
-```
