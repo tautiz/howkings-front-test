@@ -40,21 +40,22 @@ const Navbar = () => {
             </div>
 
             <div id="menu" className="hidden md:block flex-1">
-              <div className="flex items-baseline justify-center">
+              <div className="flex items-baseline justify-center space-x-6">
                 {navigationItems.map((item) => (
                   <button
                     key={item}
                     onClick={() => handleNavigation(item.toLowerCase().replace(' ', '-'))}
-                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium
-                      transition-all duration-300 hover:scale-105 relative
-                      after:content-[''] after:absolute after:bottom-0 after:left-0 
-                      after:w-0 after:h-0.5 after:bg-blue-500 
-                      after:transition-all after:duration-300
-                      hover:after:w-full
+                    className="text-gray-200 px-4 py-2.5 rounded-lg text-[15px] font-medium
+                      transition-all duration-300 
+                      hover:text-white hover:bg-blue-500/10 hover:scale-105
+                      relative group
                       disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isTransitioning}
                   >
                     {item}
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 
+                      transform scale-x-0 transition-transform duration-300 
+                      group-hover:scale-x-100" />
                   </button>
                 ))}
               </div>
