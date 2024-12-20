@@ -1,5 +1,13 @@
 import { cookieConsentService } from './cookieConsentService';
 
+// Pridedame gtag tipų deklaraciją
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    dataLayer: any[];
+  }
+}
+
 interface AnalyticsEvent {
     action: string;
     category: string;
@@ -38,11 +46,24 @@ class AnalyticsService {
         const consent = cookieConsentService.getConsent();
         if (!consent.analytics) return;
 
+        // Inicializuojame dataLayer
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function() {
+            window.dataLayer.push(arguments);
+        };
+        window.gtag('js', new Date());
+
         // Initialize GA4
         const gaScript = document.createElement('script');
         gaScript.async = true;
         gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${this.GA4_ID}`;
         document.head.appendChild(gaScript);
+
+        // Konfigūruojame GA4
+        window.gtag('config', this.GA4_ID, {
+            send_page_view: true,
+            cookie_flags: 'max-age=7200;secure;samesite=none'
+        });
 
         // Initialize GTM
         const gtmScript = document.createElement('script');
@@ -50,24 +71,11 @@ class AnalyticsService {
         gtmScript.src = `https://www.googletagmanager.com/gtag/js?id=${this.GTM_ID}`;
         document.head.appendChild(gtmScript);
 
-        window.dataLayer = window.dataLayer || [];
-        function gtag(...args: any[]) {
-            window.dataLayer.push(arguments);
-        }
-        
-        gtag('js', new Date());
-        gtag('config', this.GA4_ID, {
-            send_page_view: true,
-            page_title: document.title,
-            page_location: window.location.href,
-            cookie_flags: 'max-age=7200;secure;samesite=none'
-        });
-        
-        gtag('config', this.GTM_ID);
-        
+        // Konfigūruojame GTM
+        window.gtag('config', this.GTM_ID);
+
         this.initialized = true;
-        this.initializeScrollTracking();
-        this.initializeMobileTracking();
+        this.setupEventListeners();
     }
 
     // Formų tracking
@@ -128,106 +136,9 @@ class AnalyticsService {
         };
     }
 
-    private initializeMobileTracking(): void {
+    private setupEventListeners(): void {
         if (typeof window === 'undefined') return;
         
-        const deviceInfo = this.getDeviceInfo();
-        if (deviceInfo.type !== 'mobile' && deviceInfo.type !== 'tablet') return;
-
-        // Track orientation changes
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                const newDeviceInfo = this.getDeviceInfo();
-                this.trackEvent({
-                    action: 'orientation_change',
-                    category: 'mobile_interaction',
-                    label: newDeviceInfo.orientation,
-                    customDimensions: {
-                        previous_orientation: deviceInfo.orientation,
-                        screen_width: newDeviceInfo.screenSize.width,
-                        screen_height: newDeviceInfo.screenSize.height
-                    }
-                });
-            }, 100);
-        });
-
-        // Track touch interactions
-        window.addEventListener('touchstart', (e) => {
-            this.lastTouchStart = e.timeStamp;
-            this.touchScrolling = false;
-        });
-
-        window.addEventListener('touchmove', () => {
-            this.touchScrolling = true;
-        });
-
-        window.addEventListener('touchend', (e) => {
-            if (!this.touchScrolling) {
-                const touchDuration = e.timeStamp - this.lastTouchStart;
-                if (touchDuration > 500) {
-                    // Long press detection
-                    this.trackEvent({
-                        action: 'long_press',
-                        category: 'mobile_interaction',
-                        value: Math.round(touchDuration),
-                        customDimensions: {
-                            page_section: this.getCurrentSection()
-                        }
-                    });
-                }
-            }
-        });
-
-        // Track pinch zoom
-        let lastDistance = 0;
-        window.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2) {
-                const distance = Math.hypot(
-                    e.touches[0].pageX - e.touches[1].pageX,
-                    e.touches[0].pageY - e.touches[1].pageY
-                );
-
-                if (lastDistance) {
-                    const delta = distance - lastDistance;
-                    if (Math.abs(delta) > 50) {
-                        this.trackEvent({
-                            action: 'pinch_zoom',
-                            category: 'mobile_interaction',
-                            label: delta > 0 ? 'zoom_in' : 'zoom_out',
-                            customDimensions: {
-                                page_section: this.getCurrentSection()
-                            }
-                        });
-                    }
-                }
-                lastDistance = distance;
-            }
-        });
-
-        // Reset zoom tracking when touch ends
-        window.addEventListener('touchend', () => {
-            lastDistance = 0;
-        });
-    }
-
-    private getCurrentSection(): string {
-        // Simple logic to determine current section based on scroll position
-        const sections = document.querySelectorAll('section, [data-section]');
-        let currentSection = 'unknown';
-
-        sections.forEach(section => {
-            const rect = section.getBoundingClientRect();
-            if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
-                currentSection = section.id || section.getAttribute('data-section') || 'unknown';
-            }
-        });
-
-        return currentSection;
-    }
-
-    private initializeScrollTracking(): void {
-        if (typeof window === 'undefined') return;
-
         const deviceInfo = this.getDeviceInfo();
         const isMobile = deviceInfo.type === 'mobile' || deviceInfo.type === 'tablet';
 
@@ -259,6 +170,21 @@ class AnalyticsService {
         window.addEventListener('scroll', scrollHandler);
     }
 
+    private getCurrentSection(): string {
+        // Simple logic to determine current section based on scroll position
+        const sections = document.querySelectorAll('section, [data-section]');
+        let currentSection = 'unknown';
+
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                currentSection = section.id || section.getAttribute('data-section') || 'unknown';
+            }
+        });
+
+        return currentSection;
+    }
+
     private debounce(func: Function, wait: number): (...args: any[]) => void {
         let timeout: NodeJS.Timeout;
         return (...args: any[]) => {
@@ -276,15 +202,19 @@ class AnalyticsService {
         });
     }
 
-    public trackEvent({ action, category, label, value, customDimensions }: AnalyticsEvent): void {
+    public trackEvent(event: AnalyticsEvent): void {
         if (!this.initialized || !cookieConsentService.getConsent().analytics) return;
 
-        window.gtag('event', action, {
-            event_category: category,
-            event_label: label,
-            value: value,
-            ...customDimensions
-        });
+        try {
+            window.gtag('event', event.action, {
+                event_category: event.category,
+                event_label: event.label,
+                value: event.value,
+                ...event.customDimensions
+            });
+        } catch (error) {
+            console.error('Analytics tracking failed:', error);
+        }
     }
 }
 

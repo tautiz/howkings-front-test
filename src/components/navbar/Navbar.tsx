@@ -1,5 +1,4 @@
 // src/components/navbar/Navbar.tsx
-import React from 'react';
 import { Menu, X, Search, Linkedin, LogOut } from 'lucide-react';
 import TeleportTransition from '../TeleportTransition';
 import Auth from '../Auth';
@@ -39,9 +38,9 @@ const Navbar = () => {
                 HOWKINGS
               </button>
             </div>
-            
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
+
+            <div id="menu" className="hidden md:block flex-1">
+              <div className="flex items-baseline justify-center">
                 {navigationItems.map((item) => (
                   <button
                     key={item}
@@ -59,40 +58,73 @@ const Navbar = () => {
                   </button>
                 ))}
               </div>
+            </div>      
+
+            <div className="flex items-center shrink-0">
+              {/* Mobilūs mygtukai (be Login/SignUp) */}
+              <div className="md:hidden flex items-center space-x-2">
+                {showSearch && (
+                  <button className="p-1 rounded-full hover:bg-gray-800 transition-colors">
+                    <Search className="h-4 w-4 text-gray-300" />
+                  </button>
+                )}
+                <a 
+                  href="https://www.linkedin.com/company/howkings/about/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1 rounded-full hover:bg-gray-800 transition-colors"
+                >
+                  <Linkedin className="h-4 w-4 text-gray-300" />
+                </a>
+              </div>
+
+              {/* Desktop mygtukai */}
+              <div id="authorization_buttons" className="hidden md:flex items-center justify-start space-x-4">
+                {showSearch && (
+                  <button className="p-2 rounded-full hover:bg-gray-800 transition-colors">
+                    <Search className="h-5 w-5 text-gray-300" />
+                  </button>
+                )}
+                <a 
+                  href="https://www.linkedin.com/company/howkings/about/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+                >
+                  <Linkedin className="h-5 w-5 text-gray-300" />
+                </a>
+                {/* Login/SignUp mygtukai */}
+                {showAuthButtons && !user && (
+                  <>
+                    <button 
+                      onClick={() => setAuthForm('login')}
+                      className="px-4 py-1.5 bg-blue-500 text-white rounded-full text-sm font-medium 
+                        hover:bg-blue-600 transition-colors"
+                    >
+                      Login
+                    </button>
+                    <button 
+                      onClick={() => setAuthForm('signup')}
+                      className="px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium 
+                        border-2 border-white hover:bg-white hover:text-black transition-colors"
+                    >
+                      Sign Up
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Burger meniu mygtukas */}
+              <button
+                className="md:hidden p-2 rounded-full hover:bg-gray-800 transition-colors ml-2"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+              </button>
             </div>
 
+
             <div className="flex items-center space-x-4">
-              {showSearch && (
-                <button className="p-2 rounded-full hover:bg-gray-800 transition-colors">
-                  <Search className="h-5 w-5 text-gray-300" />
-                </button>
-              )}
-              <a 
-                href="https://www.linkedin.com/company/howkings/about/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full hover:bg-gray-800 transition-colors"
-              >
-                <Linkedin className="h-5 w-5 text-gray-300" />
-              </a>
-              {showAuthButtons && !user && (
-                <>
-                  <button 
-                    onClick={() => setAuthForm('login')}
-                    className="px-4 py-1.5 bg-blue-500 text-white rounded-full text-sm font-medium 
-                      hover:bg-blue-600 transition-colors"
-                  >
-                    Login
-                  </button>
-                  <button 
-                    onClick={() => setAuthForm('signup')}
-                    className="px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium 
-                      border-2 border-white hover:bg-white hover:text-black transition-colors"
-                  >
-                    Sign Up
-                  </button>
-                </>
-              )}
               {user && (
                 <div className="flex items-center space-x-4">
                   <span className="text-white">Hello, {user.name}</span>
@@ -105,12 +137,6 @@ const Navbar = () => {
                   </button>
                 </div>
               )}
-              <button
-                className="md:hidden p-2 rounded-full hover:bg-gray-800 transition-colors"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
-              </button>
             </div>
           </div>
         </div>

@@ -2,10 +2,25 @@ import axios, { AxiosError } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://bos.howkings.local';
 
+interface ApiResponse<T = any> {
+    status: 'success' | 'error';
+    message?: string;
+    error?: string;
+    data?: T;
+}
+
 export interface PendingRequest {
     method: string;
     url: string;
     data?: any;
+}
+
+interface RegisterData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
 }
 
 let pendingRequest: PendingRequest | null = null;
@@ -36,7 +51,7 @@ api.interceptors.request.use((config) => {
 // Add response interceptor to handle authentication errors
 api.interceptors.response.use(
     (response) => response,
-    async (error: AxiosError) => {
+    async (error: AxiosError<ApiResponse>) => {
         const originalRequest = error.config;
 
         // Handle 409 Conflict for duplicate votes
@@ -87,17 +102,12 @@ api.interceptors.response.use(
 );
 
 // Auth endpoints
-export const register = (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    password: string;
-}) => api.post('/api/register', data);
+export const register = (data: RegisterData) => 
+  api.post<ApiResponse>('/api/register', data);
 
-export const login = async (data: { email: string; password: string }) => {
-    const response = await api.post('/api/login', data);
-    const { access_token } = response.data;
+export const login = async (email: string, password: string) => {
+    const response = await api.post<ApiResponse>('/api/login', { email, password });
+    const { access_token } = response.data.data || {};
     
     if (access_token) {
         localStorage.setItem('access_token', access_token);
@@ -111,26 +121,70 @@ export const login = async (data: { email: string; password: string }) => {
 
 export const logout = async () => {
     try {
-        await api.post('/api/logout');
+        await api.post<ApiResponse>('/api/logout');
     } finally {
         localStorage.removeItem('access_token');
     }
 };
 
 // Request pool endpoints
-export const listRequests = () => api.get('/api/module-requests');
+export const listRequests = () => api.get<ApiResponse>('/api/module-requests');
 
 export const createRequest = (data: {
     module_name: string;
     description: string;
     language: string;
     tags: string[];
-  }) => api.post('/api/module-requests', data);
+}) => api.post<ApiResponse>('/api/module-requests', data);
 
-export const addVote = (moduleRequestId: number) => 
-    api.post(`/api/module-requests/vote`, { 
-        module_request_id: moduleRequestId,
-        language: 'EN'
-    });
+// Balsavimo būsenos interfeisas
+interface VoteResponse extends ApiResponse {
+    data?: {
+        votes: number;
+    };
+}
+
+// Balsavimo klaidos
+export enum VoteError {
+    ALREADY_VOTED = 'ALREADY_VOTED',
+    NOT_AUTHENTICATED = 'NOT_AUTHENTICATED',
+    MODULE_NOT_FOUND = 'MODULE_NOT_FOUND'
+}
+
+// Balsavimo funkcija su klaidų valdymu
+export const addVote = async (moduleRequestId: number): Promise<VoteResponse> => {
+    try {
+        // Patikriname autentifikaciją
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            throw new Error(VoteError.NOT_AUTHENTICATED);
+        }
+
+        const response = await api.post<VoteResponse>(`/api/module-requests/vote`, {
+            module_request_id: moduleRequestId,
+            language: "EN"
+        });
+
+        // Optimistinis UI atnaujinimas
+        if (response.data?.status === 'success') {
+            // Įvykio paleidimas UI atnaujinimui
+            window.dispatchEvent(new CustomEvent('module:voted', {
+                detail: {
+                    moduleId: moduleRequestId,
+                    votes: response.data.data?.votes || 0
+                }
+            }));
+        }
+
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const errorMessage = error.response?.data?.error || 'Balsavimo klaida';
+            showToast(errorMessage, 'error');
+            throw new Error(errorMessage);
+        }
+        throw error;
+    }
+};
 
 export default api;

@@ -1,5 +1,5 @@
 // useAuthProvider.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import * as api from '../services/api';
 import { AuthResponse, User, PendingAction, showToast, handleError, executePendingAction } from './authHelpers';
 import { analyticsService } from '../services/analyticsService';
@@ -194,7 +194,10 @@ export const useAuthProvider = () => {
         }
     };
 
-    const isAuthenticated = !!user && !!localStorage.getItem('access_token') && !isTokenExpired(localStorage.getItem('access_token')!);
+    const isAuthenticated = useMemo(() => {
+        const accessToken = localStorage.getItem('access_token');
+        return Boolean(user && accessToken && !isTokenExpired(accessToken));
+    }, [user]);
 
     if (!isInitialized) {
         return {
