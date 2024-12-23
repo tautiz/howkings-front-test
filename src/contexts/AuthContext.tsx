@@ -31,9 +31,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleInvalidToken = () => {
     setUser(null);
     tokenValidationService.clearAuthData();
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
-    }
   };
 
   useEffect(() => {
@@ -41,33 +38,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (isInitialized) return;
 
       analyticsService.initializeAnalytics();
+      setIsInitialized(true);
 
-      // Jei esame login puslapyje, nereikia tikrinti tokeno
-      if (window.location.pathname === '/login') {
-        setIsInitialized(true);
-        return;
-      }
-
-      // Tikriname token'o galiojimą
-      const isTokenValid = await tokenValidationService.validateToken();
-      
-      if (!isTokenValid) {
-        handleInvalidToken();
-        setIsInitialized(true);
-        return;
-      }
-
-      // Bandome atstatyti vartotojo sesiją
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
+      // Bandome gauti vartotojo duomenis, jei yra token
+      const token = localStorage.getItem('access_token');
+      if (token) {
         try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          console.error('Failed to parse stored user:', e);
+          const userData = await tokenValidationService.validateToken();
+          setUser(userData);
+        } catch (error) {
+          // Jei klaida - tiesiog išvalome duomenis
           handleInvalidToken();
         }
       }
-      setIsInitialized(true);
     };
 
     initializeAuth();

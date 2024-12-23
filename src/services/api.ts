@@ -61,38 +61,16 @@ api.interceptors.response.use(
         }
 
         // If error is Unauthenticated
-        if (error.response?.data?.error === "Unauthenticated." && originalRequest) {
-            // Store the failed request
-            pendingRequest = {
-                method: originalRequest.method || 'GET',
-                url: originalRequest.url || '',
-                data: originalRequest.data
-            };
-
-            // Clear token and trigger login button click
+        if (error.response?.status === 401) {
+            // Išvalome localStorage
             localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
             
-            // Dispatch event to trigger the main login button
-            window.dispatchEvent(new CustomEvent('auth:show-login'));
-
-            // Return a promise that will be resolved when the user logs in
-            return new Promise((resolve, reject) => {
-                const handleLoginSuccess = async () => {
-                    try {
-                        if (pendingRequest) {
-                            const { method, url, data } = pendingRequest;
-                            pendingRequest = null;
-                            const retryResponse = await api.request({ method, url, data });
-                            resolve(retryResponse);
-                        }
-                    } catch (retryError) {
-                        reject(retryError);
-                    }
-                    window.removeEventListener('auth:login-success', handleLoginSuccess);
-                };
-
-                window.addEventListener('auth:login-success', handleLoginSuccess);
-            });
+            // Pranešame vartotojui
+            showToast('Sesija pasibaigė. Galite prisijungti paspaudę "Prisijungti" mygtuką.', 'info');
+            
+            // Dispatch event for any listeners
+            window.dispatchEvent(new Event('auth:token-invalid'));
         }
 
         // Handle other errors
