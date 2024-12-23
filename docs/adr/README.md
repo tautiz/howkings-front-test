@@ -3,6 +3,8 @@
 ## Kas yra ADR?
 
 Architecture Decision Records (ADR) yra dokumentai, kurie aprašo svarbius architektūrinius sprendimus projekte. Kiekvienas ADR aprašo:
+
+- Problema (kokia yra problema)
 - Kontekstą (kodėl reikia sprendimo)
 - Sprendimą (ką nusprendėme daryti)
 - Pasekmes (kokį poveikį tai turės)
@@ -37,6 +39,7 @@ Architecture Decision Records (ADR) yra dokumentai, kurie aprašo svarbius archi
 
 1. [Autentifikacijos implementacija](./0001-authentication-implementation.md)
 2. [Vartotojų Registracijos Implementacija](./0002-user-registration.md)
+3. [reCAPTCHA v3 Implementacija](./0003-recaptcha-v3-implementation.md)
 
 ## Kaip pridėti naują ADR?
 
@@ -54,7 +57,7 @@ Data: YYYY-MM-DD
 
 ## Statusas
 
-[Proposed|Accepted|Deprecated|Superseded]
+[Proposed|Accepted|Deprecated|Superseded|Suspended]
 
 ## Kontekstas
 

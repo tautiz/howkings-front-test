@@ -18,6 +18,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
   handleInvalidToken: () => void;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -120,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         lastName,
         email,
         phone,
-        password
+        password,
       });
       
       if (response.data.status === 'success') {
@@ -179,6 +180,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    try {
+      setError(null);
+      await api.deleteAccount();
+      
+      // Išvalome vartotojo duomenis
+      setUser(null);
+      localStorage.removeItem('user');
+      tokenValidationService.clearAuthData();
+
+      // Siunčiam analytics įvykį
+      analyticsService.trackEvent({
+        action: 'delete_account',
+        category: 'auth',
+        label: 'success'
+      });
+
+      window.location.href = '/login';
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Įvyko klaida bandant ištrinti paskyrą';
+      setError(errorMessage);
+      
+      analyticsService.trackEvent({
+        action: 'delete_account',
+        category: 'auth',
+        label: 'error'
+      });
+      
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -188,7 +221,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         register,
         logout,
-        handleInvalidToken
+        handleInvalidToken,
+        deleteAccount
       }}
     >
       {children}

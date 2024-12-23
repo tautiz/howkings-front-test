@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Loader2, Mail, Lock, User, Phone } from 'lucide-react';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useFeatureFlag } from '../../hooks/useFeatureFlag';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useAuth } from '../../contexts/AuthContext';
 import { analyticsService } from '../../services/analyticsService';
+import FormStep from './FormStep';
+import GDPRConsent from './GDPRConsent';
+import PasswordStrength from './PasswordStrength';
+import { validatePassword, validatePhone, validateEmail, validateName } from '../../utils/validation';
 
 interface SignUpFormProps {
   onClose: () => void;
@@ -17,17 +22,25 @@ interface SignUpData {
   phone: string;
   password: string;
   organizationName?: string;
+  gdprConsent: boolean;
 }
 
 interface ApiErrors {
   [key: string]: string[];
 }
 
+interface ValidationErrors {
+  [key: string]: string;
+}
+
+const TOTAL_STEPS = 3;
+
 const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
   const { register } = useAuth();
   const showOrgRegistration = useFeatureFlag('FEATURE_ALLOW_ORGANIZATION_REGISTRATION');
   const [savedData, setSavedData] = useLocalStorage<Partial<SignUpData>>('signup_form', {});
   
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<SignUpData>({
     type: savedData.type || 'individual',
     firstName: savedData.firstName || '',
@@ -35,19 +48,68 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     email: savedData.email || '',
     phone: savedData.phone || '',
     password: '',
-    organizationName: savedData.organizationName || ''
+    organizationName: savedData.organizationName || '',
+    gdprConsent: false
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<ApiErrors>({});
+  const [apiErrors, setApiErrors] = useState<ApiErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
+
+  // Real-time validacija
+  const validateField = (name: string, value: string): string | null => {
+    switch (name) {
+      case 'firstName':
+      case 'lastName':
+        const nameValidation = validateName(value);
+        return nameValidation.isValid ? null : nameValidation.message;
+      
+      case 'email':
+        const emailValidation = validateEmail(value);
+        return emailValidation.isValid ? null : emailValidation.message;
+      
+      case 'phone':
+        const phoneValidation = validatePhone(value);
+        return phoneValidation.isValid ? null : phoneValidation.message;
+      
+      case 'password':
+        const passwordValidation = validatePassword(value);
+        return passwordValidation.isValid ? null : passwordValidation.message;
+      
+      default:
+        return null;
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Išvalome klaidos pranešimą šiam laukeliui
-    setErrors(prev => {
+    // Formatuojame telefono numerį
+    if (name === 'phone') {
+      const phoneNumber = parsePhoneNumberFromString(value, 'LT');
+      if (phoneNumber) {
+        setFormData(prev => ({ ...prev, [name]: phoneNumber.format('INTERNATIONAL') }));
+      } else {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+
+    // Validuojame lauką
+    const error = validateField(name, value);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, [name]: error }));
+    } else {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+
+    setApiErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[name];
       return newErrors;
@@ -55,16 +117,55 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     
     setGeneralError(null);
 
-    // Save form data (except password)
+    // Išsaugome formos duomenis (išskyrus slaptažodį)
     if (name !== 'password') {
       setSavedData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  const validateStep = (): boolean => {
+    const stepFields = {
+      0: ['type', 'firstName', 'lastName', 'organizationName'],
+      1: ['email', 'phone', 'password'],
+      2: ['gdprConsent']
+    }[currentStep];
+
+    const errors: ValidationErrors = {};
+    
+    stepFields?.forEach(field => {
+      if (field === 'gdprConsent' && !formData.gdprConsent) {
+        errors[field] = 'Privalote sutikti su privatumo politika';
+      } else if (field !== 'organizationName' || formData.type === 'organization') {
+        const error = validateField(field, formData[field as keyof SignUpData] as string);
+        if (error) {
+          errors[field] = error;
+        }
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep()) {
+      setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS - 1));
+    }
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateStep()) {
+      return;
+    }
+
     setIsLoading(true);
-    setErrors({});
+    setApiErrors({});
     setGeneralError(null);
 
     try {
@@ -84,14 +185,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
         );
       }
       
-      // Siunčiam analytics įvykį
       analyticsService.trackFormInteraction('signup_form', 'submit', 'success');
-      
       onClose();
     } catch (err: any) {
-      // Tikriname ar yra API klaidos
       if (err.response?.data?.errors) {
-        setErrors(err.response.data.errors);
+        setApiErrors(err.response.data.errors);
       } else {
         setGeneralError(err.response?.data?.message || 'Įvyko nenumatyta klaida');
       }
@@ -104,11 +202,171 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
   const getInputClassName = (fieldName: string) => {
     const baseClasses = "w-full bg-gray-700 text-white rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2";
-    return `${baseClasses} ${
-      errors[fieldName] 
-        ? "border-2 border-red-500 focus:ring-red-500" 
-        : "focus:ring-blue-500"
-    }`;
+    const hasError = apiErrors[fieldName] || validationErrors[fieldName];
+    return `${baseClasses} ${hasError ? "border-2 border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`;
+  };
+
+  const renderError = (fieldName: string) => {
+    const error = validationErrors[fieldName] || (apiErrors[fieldName] && apiErrors[fieldName][0]);
+    if (error) {
+      return <p className="mt-1 text-sm text-red-500">{error}</p>;
+    }
+    return null;
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <>
+            {showOrgRegistration && (
+              <div>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  className={getInputClassName('type')}
+                >
+                  <option value="individual">Individualus</option>
+                  <option value="organization">Organizacija</option>
+                </select>
+                {renderError('type')}
+              </div>
+            )}
+
+            {formData.type === 'organization' ? (
+              <div className="relative">
+                <label htmlFor="organizationName" className="sr-only">
+                  Organizacijos pavadinimas
+                </label>
+                <input
+                  id="organizationName"
+                  type="text"
+                  name="organizationName"
+                  required
+                  placeholder="Organizacijos pavadinimas"
+                  value={formData.organizationName}
+                  onChange={handleChange}
+                  className={getInputClassName('organizationName')}
+                />
+                <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                {renderError('organizationName')}
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <label htmlFor="firstName" className="sr-only">
+                    Vardas
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    name="firstName"
+                    required
+                    placeholder="Vardas"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className={getInputClassName('firstName')}
+                  />
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  {renderError('firstName')}
+                </div>
+
+                <div className="relative">
+                  <label htmlFor="lastName" className="sr-only">
+                    Pavardė
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    name="lastName"
+                    required
+                    placeholder="Pavardė"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className={getInputClassName('lastName')}
+                  />
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  {renderError('lastName')}
+                </div>
+              </>
+            )}
+          </>
+        );
+
+      case 1:
+        return (
+          <>
+            <div className="relative">
+              <label htmlFor="email" className="sr-only">
+                El. paštas
+              </label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                required
+                placeholder="El. paštas"
+                value={formData.email}
+                onChange={handleChange}
+                className={getInputClassName('email')}
+              />
+              <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              {renderError('email')}
+            </div>
+
+            <div className="relative">
+              <label htmlFor="phone" className="sr-only">
+                Telefonas
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                name="phone"
+                required
+                placeholder="Telefonas"
+                value={formData.phone}
+                onChange={handleChange}
+                className={getInputClassName('phone')}
+              />
+              <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              {renderError('phone')}
+            </div>
+
+            <div className="relative">
+              <label htmlFor="password" className="sr-only">
+                Slaptažodis
+              </label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                required
+                placeholder="Slaptažodis"
+                value={formData.password}
+                onChange={handleChange}
+                className={getInputClassName('password')}
+              />
+              <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              {renderError('password')}
+              <PasswordStrength password={formData.password} />
+            </div>
+          </>
+        );
+
+      case 2:
+        return (
+          <>
+            <GDPRConsent
+              onConsent={(consented) => 
+                setFormData(prev => ({ ...prev, gdprConsent: consented }))
+              }
+              consented={formData.gdprConsent}
+            />
+            {renderError('gdprConsent')}
+          </>
+        );
+    }
   };
 
   return (
@@ -124,147 +382,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
         <h2 className="text-2xl font-bold text-white mb-6">Sukurti paskyrą</h2>
 
+        <FormStep currentStep={currentStep} totalSteps={TOTAL_STEPS} />
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {showOrgRegistration && (
-            <div>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className={getInputClassName('type')}
-              >
-                <option value="individual">Individualus</option>
-                <option value="organization">Organizacija</option>
-              </select>
-              {errors.type && (
-                <p className="mt-1 text-sm text-red-500">{errors.type[0]}</p>
-              )}
-            </div>
-          )}
-
-          {formData.type === 'organization' ? (
-            <div className="relative">
-              <label htmlFor="organizationName" className="sr-only">
-                Organizacijos pavadinimas
-              </label>
-              <input
-                id="organizationName"
-                type="text"
-                name="organizationName"
-                required
-                placeholder="Organizacijos pavadinimas"
-                value={formData.organizationName}
-                onChange={handleChange}
-                className={getInputClassName('organizationName')}
-              />
-              <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              {errors.organizationName && (
-                <p className="mt-1 text-sm text-red-500">{errors.organizationName[0]}</p>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="relative">
-                <label htmlFor="firstName" className="sr-only">
-                  Vardas
-                </label>
-                <input
-                  id="firstName"
-                  type="text"
-                  name="firstName"
-                  required
-                  placeholder="Vardas"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className={getInputClassName('firstName')}
-                />
-                <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-500">{errors.firstName[0]}</p>
-                )}
-              </div>
-
-              <div className="relative">
-                <label htmlFor="lastName" className="sr-only">
-                  Pavardė
-                </label>
-                <input
-                  id="lastName"
-                  type="text"
-                  name="lastName"
-                  required
-                  placeholder="Pavardė"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className={getInputClassName('lastName')}
-                />
-                <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                {errors.lastName && (
-                  <p className="mt-1 text-sm text-red-500">{errors.lastName[0]}</p>
-                )}
-              </div>
-            </>
-          )}
-
-          <div className="relative">
-            <label htmlFor="email" className="sr-only">
-              El. paštas
-            </label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              required
-              placeholder="El. paštas"
-              value={formData.email}
-              onChange={handleChange}
-              className={getInputClassName('email')}
-            />
-            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-500">{errors.email[0]}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <label htmlFor="phone" className="sr-only">
-              Telefonas
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              name="phone"
-              required
-              placeholder="Telefonas"
-              value={formData.phone}
-              onChange={handleChange}
-              className={getInputClassName('phone')}
-            />
-            <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            {errors.phone && (
-              <p className="mt-1 text-sm text-red-500">{errors.phone[0]}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <label htmlFor="password" className="sr-only">
-              Slaptažodis
-            </label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              required
-              placeholder="Slaptažodis"
-              value={formData.password}
-              onChange={handleChange}
-              className={getInputClassName('password')}
-            />
-            <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-500">{errors.password[0]}</p>
-            )}
-          </div>
+          {renderStepContent()}
 
           {generalError && (
             <div className="bg-red-500/10 text-red-500 p-3 rounded-lg text-sm">
@@ -272,18 +393,37 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-lg text-white transition-colors ${
-              isLoading
-                ? 'bg-blue-500/50 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600'
-            }`}
-          >
-            {isLoading && <Loader2 className="animate-spin h-5 w-5" />}
-            <span>{isLoading ? 'Registruojama...' : 'Registruotis'}</span>
-          </button>
+          <div className="flex justify-between space-x-4">
+            {currentStep > 0 && (
+              <button
+                type="button"
+                onClick={handlePrevStep}
+                className="flex-1 py-2 px-4 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition-colors"
+              >
+                Atgal
+              </button>
+            )}
+
+            <button
+              type={currentStep === TOTAL_STEPS - 1 ? 'submit' : 'button'}
+              onClick={currentStep === TOTAL_STEPS - 1 ? undefined : handleNextStep}
+              disabled={isLoading}
+              className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-lg text-white transition-colors ${
+                isLoading
+                  ? 'bg-blue-500/50 cursor-not-allowed'
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              {isLoading && <Loader2 className="animate-spin h-5 w-5" />}
+              <span>
+                {isLoading
+                  ? 'Registruojama...'
+                  : currentStep === TOTAL_STEPS - 1
+                  ? 'Registruotis'
+                  : 'Toliau'}
+              </span>
+            </button>
+          </div>
         </form>
       </div>
     </div>

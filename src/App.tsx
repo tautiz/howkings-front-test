@@ -14,6 +14,7 @@ import { initializeUserback, updateUserData } from './services/userbackService';
 import { analyticsService } from './services/analyticsService';
 import Auth from './components/Auth';
 import CookieConsent from './components/CookieConsent';
+import { initializeCsrf } from './services/csrfService';
 
 function AppContent() {
   const { user, authForm, setAuthForm, handleInvalidToken } = useAuth();
@@ -111,6 +112,11 @@ function AppContent() {
 }
 
 function App() {
+  useEffect(() => {
+    // Inicializuojame CSRF apsaugą
+    initializeCsrf();
+  }, []);
+
   return (
     <Router>
       <AuthProvider>

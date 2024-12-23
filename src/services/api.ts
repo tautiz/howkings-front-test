@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://bos.howkings.local';
+const API_URL = import.meta.env.VITE_API_URL || 'http://bos.howkings.lt';
 
 interface ApiResponse<T = any> {
     status: 'success' | 'error';
@@ -16,11 +16,11 @@ export interface PendingRequest {
 }
 
 interface RegisterData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  password: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
 }
 
 let pendingRequest: PendingRequest | null = null;
@@ -102,11 +102,29 @@ api.interceptors.response.use(
 );
 
 // Auth endpoints
-export const register = (data: RegisterData) => 
-  api.post<ApiResponse>('/api/register', data);
+import { loginRateLimit, registrationRateLimit } from './rateLimitService';
+
+export const register = async (data: RegisterData) => {
+    const key = `register_${data.email}`;
+    if (!registrationRateLimit.canAttempt(key)) {
+        const remainingTime = Math.ceil(registrationRateLimit.getRemainingTime(key) / 1000);
+        throw new Error(`Per daug bandymų. Bandykite dar kartą po ${remainingTime} sekundžių.`);
+    }
+
+    const response = await api.post<ApiResponse>('/api/register', data);
+    registrationRateLimit.reset(key);
+    return response;
+};
 
 export const login = async (email: string, password: string) => {
+    const key = `login_${email}`;
+    if (!loginRateLimit.canAttempt(key)) {
+        const remainingTime = Math.ceil(loginRateLimit.getRemainingTime(key) / 1000);
+        throw new Error(`Per daug bandymų. Bandykite dar kartą po ${remainingTime} sekundžių.`);
+    }
+
     const response = await api.post<ApiResponse>('/api/login', { email, password });
+    loginRateLimit.reset(key);
     const { access_token } = response.data.data || {};
     
     if (access_token) {
@@ -129,6 +147,14 @@ export const logout = async () => {
     } finally {
         localStorage.removeItem('access_token');
     }
+};
+
+export const deleteAccount = () => {
+    return api.delete(`${API_URL}/auth/account`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        }
+    });
 };
 
 // Request pool endpoints
