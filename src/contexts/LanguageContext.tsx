@@ -1,33 +1,46 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { en } from '../locales/en';
-import { lt } from '../locales/lt';
+import { translations as ltTranslations } from '../locales/lt';
+import { translations as enTranslations } from '../locales/en';
 
-type Language = 'en' | 'lt';
-type Translations = typeof en;
+type Language = 'lt' | 'en';
+type Translations = typeof ltTranslations;
 
 interface LanguageContextType {
   language: Language;
-  translations: Translations;
   setLanguage: (lang: Language) => void;
+  translations: Translations;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Konvertuojame string į boolean
+  const isFeatureEnabled = import.meta.env.VITE_FEATURE_LANGUAGE_SWITCH?.toLowerCase() === 'true';
+  const defaultLanguage: Language = isFeatureEnabled ? 'lt' : 'en';
+  
   const [language, setLanguage] = useState<Language>(() => {
+    if (!isFeatureEnabled) return defaultLanguage;
+    
     const savedLang = localStorage.getItem('language');
-    return (savedLang as Language) || 'en';
+    return (savedLang === 'lt' || savedLang === 'en') ? savedLang : defaultLanguage;
   });
 
-  const [translations, setTranslations] = useState<Translations>(language === 'lt' ? lt : en);
-
   useEffect(() => {
-    localStorage.setItem('language', language);
-    setTranslations(language === 'lt' ? lt : en);
-  }, [language]);
+    if (isFeatureEnabled) {
+      localStorage.setItem('language', language);
+    }
+  }, [language, isFeatureEnabled]);
+
+  const translations = language === 'lt' ? ltTranslations : enTranslations;
+
+  const contextValue = {
+    language,
+    setLanguage: isFeatureEnabled ? setLanguage : () => {}, // Jei feature išjungtas, setLanguage nieko nedaro
+    translations
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, translations, setLanguage }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

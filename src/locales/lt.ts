@@ -1,4 +1,4 @@
-export const lt = {
+export const translations = {
   nav: {
     home: 'Pradžia',
     programs: 'Programos',
