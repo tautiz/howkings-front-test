@@ -15,6 +15,7 @@ import { analyticsService } from './services/analyticsService';
 import Auth from './components/Auth';
 import CookieConsent from './components/CookieConsent';
 import { initializeCsrf } from './services/csrfService';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 function AppContent() {
   const { user, authForm, setAuthForm, handleInvalidToken } = useAuth();
@@ -120,7 +121,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   );

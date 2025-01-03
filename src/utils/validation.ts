@@ -2,7 +2,8 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 export interface ValidationResult {
   isValid: boolean;
-  message?: string;
+  errorKey?: string;
+  params?: Record<string, string>;
 }
 
 export const validatePassword = (password: string): ValidationResult => {
@@ -14,28 +15,29 @@ export const validatePassword = (password: string): ValidationResult => {
   if (password.length < minLength) {
     return {
       isValid: false,
-      message: `Slaptažodis turi būti bent ${minLength} simbolių ilgio`
+      errorKey: 'passwordMinLength',
+      params: { length: minLength.toString() }
     };
   }
 
   if (!hasUpperCase) {
     return {
       isValid: false,
-      message: 'Slaptažodis turi turėti bent vieną didžiąją raidę'
+      errorKey: 'passwordUppercase'
     };
   }
 
   if (!hasNumber) {
     return {
       isValid: false,
-      message: 'Slaptažodis turi turėti bent vieną skaičių'
+      errorKey: 'passwordNumber'
     };
   }
 
   if (!hasSpecialChar) {
     return {
       isValid: false,
-      message: 'Slaptažodis turi turėti bent vieną specialų simbolį'
+      errorKey: 'passwordSpecial'
     };
   }
 
@@ -48,14 +50,14 @@ export const validatePhone = (phone: string): ValidationResult => {
     if (!phoneNumber || !phoneNumber.isValid()) {
       return {
         isValid: false,
-        message: 'Neteisingas telefono numerio formatas'
+        errorKey: 'phoneInvalid'
       };
     }
     return { isValid: true };
   } catch (error) {
     return {
       isValid: false,
-      message: 'Neteisingas telefono numerio formatas'
+      errorKey: 'phoneInvalid'
     };
   }
 };
@@ -65,7 +67,7 @@ export const validateEmail = (email: string): ValidationResult => {
   if (!emailRegex.test(email)) {
     return {
       isValid: false,
-      message: 'Neteisingas el. pašto formatas'
+      errorKey: 'emailInvalid'
     };
   }
   return { isValid: true };
@@ -75,13 +77,13 @@ export const validateName = (name: string): ValidationResult => {
   if (name.length < 2) {
     return {
       isValid: false,
-      message: 'Vardas turi būti bent 2 simbolių ilgio'
+      errorKey: 'nameMinLength'
     };
   }
   if (name.length > 50) {
     return {
       isValid: false,
-      message: 'Vardas negali būti ilgesnis nei 50 simbolių'
+      errorKey: 'nameMaxLength'
     };
   }
   return { isValid: true };

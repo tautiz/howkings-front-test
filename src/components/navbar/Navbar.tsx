@@ -1,8 +1,10 @@
-// src/components/navbar/Navbar.tsx
+import React from 'react';
 import { Menu, X, Search, Linkedin, LogOut } from 'lucide-react';
 import TeleportTransition from '../TeleportTransition';
 import Auth from '../Auth';
-import { useNavbarLogic } from './useNavbarLogic';
+import LanguageSwitch from '../LanguageSwitch';
+import { useNavbarLogic, NavigationItem } from './useNavbarLogic';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Navbar = () => {
   const {
@@ -20,11 +22,13 @@ const Navbar = () => {
     navigationItems
   } = useNavbarLogic();
 
+  const { translations } = useLanguage();
+
   return (
     <>
       <TeleportTransition
         isActive={isTransitioning} 
-        onComplete={() => {/* no-op, valdymas logikoje */}} 
+        onComplete={() => {/* no-op */}} 
       />
       
       <nav className="fixed w-full z-50 bg-black/80 backdrop-blur-md">
@@ -44,100 +48,63 @@ const Navbar = () => {
                 {navigationItems.map((item) => (
                   <button
                     key={item}
-                    onClick={() => handleNavigation(item.toLowerCase().replace(' ', '-'))}
-                    className="text-gray-200 px-4 py-2.5 rounded-lg text-[15px] font-medium
-                      transition-all duration-300 
-                      hover:text-white hover:bg-blue-500/10 hover:scale-105
-                      relative group
-                      disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isTransitioning}
+                    onClick={() => handleNavigation(item)}
+                    className="text-gray-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    {item}
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 
-                      transform scale-x-0 transition-transform duration-300 
-                      group-hover:scale-x-100" />
+                    {translations.nav[item]}
                   </button>
                 ))}
               </div>
-            </div>      
+            </div>
 
-            <div className="flex items-center shrink-0">
-              {/* Mobilūs mygtukai (be Login/SignUp) */}
-              <div className="md:hidden flex items-center space-x-2">
-                {showSearch && (
-                  <button className="p-1 rounded-full hover:bg-gray-800 transition-colors">
-                    <Search className="h-4 w-4 text-gray-300" />
-                  </button>
-                )}
-                <a 
-                  href="https://www.linkedin.com/company/howkings/about/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-1 rounded-full hover:bg-gray-800 transition-colors"
-                >
-                  <Linkedin className="h-4 w-4 text-gray-300" />
-                </a>
-              </div>
-
+            <div className="flex items-center space-x-4">
+              <LanguageSwitch />
               {/* Desktop mygtukai */}
-              <div id="authorization_buttons" className="hidden md:flex items-center justify-start space-x-4">
-                {showSearch && (
-                  <button className="p-2 rounded-full hover:bg-gray-800 transition-colors">
-                    <Search className="h-5 w-5 text-gray-300" />
-                  </button>
-                )}
-                <a 
-                  href="https://www.linkedin.com/company/howkings/about/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-full hover:bg-gray-800 transition-colors"
-                >
-                  <Linkedin className="h-5 w-5 text-gray-300" />
-                </a>
-                {/* Login/SignUp mygtukai */}
+              <div className="hidden md:flex items-center space-x-4">
                 {showAuthButtons && !user && (
                   <>
                     <button 
-                      onClick={() => setAuthForm('login')}
+                      onClick={() => setAuthForm('signin')}
                       className="px-4 py-1.5 bg-blue-500 text-white rounded-full text-sm font-medium 
                         hover:bg-blue-600 transition-colors"
                     >
-                      Login
+                      {translations.nav.signIn}
                     </button>
                     <button 
                       onClick={() => setAuthForm('signup')}
                       className="px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium 
                         border-2 border-white hover:bg-white hover:text-black transition-colors"
                     >
-                      Sign Up
+                      {translations.nav.signUp}
                     </button>
                   </>
                 )}
+                {user && (
+                  <div className="flex items-center space-x-4">
+                    <span className="text-white">{translations.nav.hello}, {user.name}</span>
+                    <button 
+                      onClick={logout}
+                      className="p-2 rounded-full hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
+                      title={translations.nav.logout}
+                    >
+                      <LogOut className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
               </div>
-
+              
               {/* Burger meniu mygtukas */}
               <button
-                className="md:hidden p-2 rounded-full hover:bg-gray-800 transition-colors ml-2"
+                className="md:hidden p-2 rounded-full hover:bg-gray-800 transition-colors"
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
               >
-                {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+                {isOpen ? (
+                  <X className="h-6 w-6 text-white" />
+                ) : (
+                  <Menu className="h-6 w-6 text-white" />
+                )}
               </button>
-            </div>
-
-
-            <div className="flex items-center space-x-4">
-              {user && (
-                <div className="flex items-center space-x-4">
-                  <span className="text-white">Hello, {user.name}</span>
-                  <button 
-                    onClick={logout}
-                    className="p-2 rounded-full hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
-                    title="Logout"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -148,26 +115,26 @@ const Navbar = () => {
             {navigationItems.map((item) => (
               <button
                 key={item}
-                onClick={() => handleNavigation(item.toLowerCase().replace(' ', '-'))}
+                onClick={() => handleNavigation(item)}
                 className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium
-                  transition-all duration-300 hover:bg-gray-800 w-full text-left
-                  disabled:opacity-50 disabled:cursor-not-allowed"
+                  transition-all duration-300 hover:bg-gray-800 w-full text-left"
                 disabled={isTransitioning}
               >
-                {item}
+                {translations.nav[item]}
               </button>
             ))}
+
             {showAuthButtons && !user && (
               <div className="flex flex-col space-y-2 px-3 pt-4">
                 <button 
                   onClick={() => {
                     setIsOpen(false);
-                    setAuthForm('login');
+                    setAuthForm('signin');
                   }}
                   className="w-full px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium 
                     hover:bg-blue-600 transition-colors"
                 >
-                  Login
+                  {translations.nav.signIn}
                 </button>
                 <button 
                   onClick={() => {
@@ -177,13 +144,14 @@ const Navbar = () => {
                   className="w-full px-4 py-2 bg-black text-white rounded-full text-sm font-medium 
                     border-2 border-white hover:bg-white hover:text-black transition-colors"
                 >
-                  Sign Up
+                  {translations.nav.signUp}
                 </button>
               </div>
             )}
+
             {user && (
               <div className="flex flex-col space-y-2 px-3 pt-4">
-                <span className="text-white">Hello, {user.name}</span>
+                <span className="text-white">{translations.nav.hello}, {user.name}</span>
                 <button 
                   onClick={() => {
                     setIsOpen(false);
@@ -192,7 +160,7 @@ const Navbar = () => {
                   className="w-full px-4 py-2 bg-red-500 text-white rounded-full text-sm font-medium 
                     hover:bg-red-600 transition-colors"
                 >
-                  Logout
+                  {translations.nav.logout}
                 </button>
               </div>
             )}

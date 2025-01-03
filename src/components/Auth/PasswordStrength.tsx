@@ -1,75 +1,59 @@
 import React from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface PasswordStrengthProps {
   password: string;
 }
 
 const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password }) => {
-  const calculateStrength = (): { score: number; message: string } => {
-    let score = 0;
-    const checks = {
-      length: password.length >= 8,
-      hasUpperCase: /[A-Z]/.test(password),
-      hasLowerCase: /[a-z]/.test(password),
-      hasNumber: /[0-9]/.test(password),
-      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
+  const { translations } = useLanguage();
 
-    score = Object.values(checks).filter(Boolean).length;
-
-    const messages = [
-      'Labai silpnas',
-      'Silpnas',
-      'Vidutinis',
-      'Stiprus',
-      'Labai stiprus'
-    ];
-
-    return {
-      score,
-      message: messages[score - 1] || 'Netinkamas'
-    };
+  const calculateStrength = (password: string): number => {
+    if (!password) return 0;
+    
+    let strength = 0;
+    
+    // Length check
+    if (password.length >= 8) strength += 1;
+    if (password.length >= 12) strength += 1;
+    
+    // Character type checks
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    
+    return strength;
   };
 
-  const { score, message } = calculateStrength();
-  const strengthColor = [
-    'bg-red-500',
-    'bg-orange-500',
-    'bg-yellow-500',
-    'bg-green-500',
-    'bg-emerald-500'
-  ][score - 1] || 'bg-gray-500';
+  const strength = calculateStrength(password);
+  const strengthMessages = [
+    translations.signUp.passwordStrength.veryWeak,
+    translations.signUp.passwordStrength.weak,
+    translations.signUp.passwordStrength.medium,
+    translations.signUp.passwordStrength.strong,
+    translations.signUp.passwordStrength.veryStrong,
+  ];
 
-  return (
-    <div className="space-y-2">
-      <div className="flex space-x-1 h-1">
-        {[1, 2, 3, 4, 5].map((level) => (
+  const getStrengthColor = (strength: number): string => {
+    const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-emerald-500'];
+    return colors[strength] || colors[0];
+  };
+
+  return password ? (
+    <div className="mt-1">
+      <div className="flex h-1 overflow-hidden rounded bg-gray-200">
+        {[...Array(5)].map((_, index) => (
           <div
-            key={level}
-            className={`flex-1 rounded-full transition-colors ${
-              level <= score ? strengthColor : 'bg-gray-700'
-            }`}
+            key={index}
+            className={`flex-1 ${index <= strength ? getStrengthColor(strength) : 'bg-gray-300'}`}
           />
         ))}
       </div>
-      <p className="text-xs text-gray-400">
-        Slaptažodžio stiprumas: <span className="text-white">{message}</span>
+      <p className={`mt-1 text-sm ${getStrengthColor(strength).replace('bg-', 'text-')}`}>
+        {strengthMessages[strength]}
       </p>
-      {score < 3 && (
-        <ul className="text-xs text-gray-400 list-disc list-inside">
-          {!password.length && <li>Įveskite slaptažodį</li>}
-          {password.length > 0 && password.length < 8 && (
-            <li>Bent 8 simboliai</li>
-          )}
-          {!/[A-Z]/.test(password) && <li>Bent viena didžioji raidė</li>}
-          {!/[0-9]/.test(password) && <li>Bent vienas skaičius</li>}
-          {!/[!@#$%^&*(),.?":{}|<>]/.test(password) && (
-            <li>Bent vienas specialus simbolis</li>
-          )}
-        </ul>
-      )}
     </div>
-  );
+  ) : null;
 };
 
 export default PasswordStrength;

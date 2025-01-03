@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface FormStepProps {
   currentStep: number;
@@ -6,6 +7,21 @@ interface FormStepProps {
 }
 
 const FormStep: React.FC<FormStepProps> = ({ currentStep, totalSteps }) => {
+  const { translations } = useLanguage();
+
+  const getStepTitle = (index: number): string => {
+    switch (index) {
+      case 0:
+        return translations.signUp.steps.basicInfo;
+      case 1:
+        return translations.signUp.steps.contacts;
+      case 2:
+        return translations.signUp.steps.confirmation;
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center">
@@ -40,11 +56,7 @@ const FormStep: React.FC<FormStepProps> = ({ currentStep, totalSteps }) => {
                 )}
               </div>
               <span className="text-xs text-gray-400 mt-1">
-                {index === 0
-                  ? 'Pagrindinė info'
-                  : index === 1
-                  ? 'Kontaktai'
-                  : 'Patvirtinimas'}
+                {getStepTitle(index)}
               </span>
             </div>
             {index < totalSteps - 1 && (

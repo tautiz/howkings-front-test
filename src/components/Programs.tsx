@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Atom, Brain, Globe, Database, Rocket, Cpu, Shield, Microscope } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const Programs = () => {
+const Programs: React.FC = () => {
+  const { translations } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('plans');
 
   const categories = [
-    { id: 'plans', label: 'Plans' },
-    { id: 'features', label: 'Features' }
+    { id: 'plans', label: translations.programs.categories.plans },
+    { id: 'features', label: translations.programs.categories.content }
   ];
 
   const plans = [
@@ -100,38 +102,44 @@ const Programs = () => {
   ];
 
   return (
-    <section 
-      className="bg-gray-900 py-24" 
-      id="programs"
-      role="region"
-      aria-label="Programs and Plans">
+    <section id="programs" className="bg-gray-900 py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            {activeCategory === 'plans' ? 'Choose Your Plan' : 'Our Learning Content'}
+            {activeCategory === 'plans' 
+              ? translations.programs.plans.title 
+              : translations.programs.content.title}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            {activeCategory === 'plans' 
-              ? 'Select the perfect plan for your learning journey'
-              : 'Discover what makes our content unique and valuable'}
+            {activeCategory === 'plans'
+              ? translations.programs.plans.subtitle
+              : translations.programs.content.subtitle}
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {categories.map((category) => (
+        <div className="flex justify-center mb-12">
+          <div className="inline-flex rounded-lg bg-gray-800 p-1">
             <button
-              key={category.id}
-              data-category={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300
-                ${activeCategory === category.id
+              onClick={() => setActiveCategory('plans')}
+              className={`${
+                activeCategory === 'plans'
                   ? 'bg-blue-500 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
+                  : 'text-gray-400 hover:text-white'
+              } px-4 py-2 rounded-md transition-colors`}
             >
-              {category.label}
+              {translations.programs.categories.plans}
             </button>
-          ))}
+            <button
+              onClick={() => setActiveCategory('content')}
+              className={`${
+                activeCategory === 'content'
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-400 hover:text-white'
+              } px-4 py-2 rounded-md transition-colors`}
+            >
+              {translations.programs.categories.content}
+            </button>
+          </div>
         </div>
 
         {activeCategory === 'plans' ? (

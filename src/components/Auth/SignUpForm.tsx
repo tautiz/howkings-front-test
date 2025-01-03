@@ -5,6 +5,7 @@ import { useFeatureFlag } from '../../hooks/useFeatureFlag';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useAuth } from '../../contexts/AuthContext';
 import { analyticsService } from '../../services/analyticsService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import FormStep from './FormStep';
 import GDPRConsent from './GDPRConsent';
 import PasswordStrength from './PasswordStrength';
@@ -37,6 +38,7 @@ const TOTAL_STEPS = 3;
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
   const { register } = useAuth();
+  const { translations } = useLanguage();
   const showOrgRegistration = useFeatureFlag('FEATURE_ALLOW_ORGANIZATION_REGISTRATION');
   const [savedData, setSavedData] = useLocalStorage<Partial<SignUpData>>('signup_form', {});
   
@@ -59,27 +61,41 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
   // Real-time validacija
   const validateField = (name: string, value: string): string | null => {
+    let result: ValidationResult;
+
     switch (name) {
       case 'firstName':
       case 'lastName':
-        const nameValidation = validateName(value);
-        return nameValidation.isValid ? null : nameValidation.message;
+        result = validateName(value);
+        break;
       
       case 'email':
-        const emailValidation = validateEmail(value);
-        return emailValidation.isValid ? null : emailValidation.message;
+        result = validateEmail(value);
+        break;
       
       case 'phone':
-        const phoneValidation = validatePhone(value);
-        return phoneValidation.isValid ? null : phoneValidation.message;
+        result = validatePhone(value);
+        break;
       
       case 'password':
-        const passwordValidation = validatePassword(value);
-        return passwordValidation.isValid ? null : passwordValidation.message;
+        result = validatePassword(value);
+        break;
       
       default:
         return null;
     }
+
+    if (!result.isValid && result.errorKey) {
+      const message = result.params 
+        ? translations.signUp.errors[result.errorKey].replace(
+            `{${Object.keys(result.params)[0]}}`, 
+            Object.values(result.params)[0]
+          )
+        : translations.signUp.errors[result.errorKey];
+      return message;
+    }
+
+    return null;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -134,7 +150,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     
     stepFields?.forEach(field => {
       if (field === 'gdprConsent' && !formData.gdprConsent) {
-        errors[field] = 'Privalote sutikti su privatumo politika';
+        errors[field] = translations.signUp.errors.gdprRequired;
       } else if (field !== 'organizationName' || formData.type === 'organization') {
         const error = validateField(field, formData[field as keyof SignUpData] as string);
         if (error) {
@@ -161,6 +177,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     e.preventDefault();
     
     if (!validateStep()) {
+      setGeneralError(translations.signUp.errors.validationFailed);
       return;
     }
 
@@ -191,7 +208,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
       if (err.response?.data?.errors) {
         setApiErrors(err.response.data.errors);
       } else {
-        setGeneralError(err.response?.data?.message || 'Įvyko nenumatyta klaida');
+        setGeneralError(err.response?.data?.message || translations.signUp.errors.unexpectedError);
       }
       
       analyticsService.trackFormInteraction('signup_form', 'submit', 'error');
@@ -220,31 +237,43 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
         return (
           <>
             {showOrgRegistration && (
-              <div>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  className={getInputClassName('type')}
-                >
-                  <option value="individual">Individualus</option>
-                  <option value="organization">Organizacija</option>
-                </select>
-                {renderError('type')}
+              <div className="space-y-4">
+                <label className="block">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="individual"
+                    checked={formData.type === 'individual'}
+                    onChange={handleChange}
+                    className="mr-2"
+                  />
+                  {translations.signUp.individual}
+                </label>
+                <label className="block">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="organization"
+                    checked={formData.type === 'organization'}
+                    onChange={handleChange}
+                    className="mr-2"
+                  />
+                  {translations.signUp.organization}
+                </label>
               </div>
             )}
 
             {formData.type === 'organization' ? (
               <div className="relative">
                 <label htmlFor="organizationName" className="sr-only">
-                  Organizacijos pavadinimas
+                  {translations.signUp.organizationName}
                 </label>
                 <input
                   id="organizationName"
                   type="text"
                   name="organizationName"
                   required
-                  placeholder="Organizacijos pavadinimas"
+                  placeholder={translations.signUp.organizationName}
                   value={formData.organizationName}
                   onChange={handleChange}
                   className={getInputClassName('organizationName')}
@@ -256,14 +285,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
               <>
                 <div className="relative">
                   <label htmlFor="firstName" className="sr-only">
-                    Vardas
+                    {translations.signUp.firstName}
                   </label>
                   <input
                     id="firstName"
                     type="text"
                     name="firstName"
                     required
-                    placeholder="Vardas"
+                    placeholder={translations.signUp.firstName}
                     value={formData.firstName}
                     onChange={handleChange}
                     className={getInputClassName('firstName')}
@@ -274,14 +303,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
                 <div className="relative">
                   <label htmlFor="lastName" className="sr-only">
-                    Pavardė
+                    {translations.signUp.lastName}
                   </label>
                   <input
                     id="lastName"
                     type="text"
                     name="lastName"
                     required
-                    placeholder="Pavardė"
+                    placeholder={translations.signUp.lastName}
                     value={formData.lastName}
                     onChange={handleChange}
                     className={getInputClassName('lastName')}
@@ -299,14 +328,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
           <>
             <div className="relative">
               <label htmlFor="email" className="sr-only">
-                El. paštas
+                {translations.signUp.email}
               </label>
               <input
                 id="email"
                 type="email"
                 name="email"
                 required
-                placeholder="El. paštas"
+                placeholder={translations.signUp.email}
                 value={formData.email}
                 onChange={handleChange}
                 className={getInputClassName('email')}
@@ -317,14 +346,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
             <div className="relative">
               <label htmlFor="phone" className="sr-only">
-                Telefonas
+                {translations.signUp.phone}
               </label>
               <input
                 id="phone"
                 type="tel"
                 name="phone"
                 required
-                placeholder="Telefonas"
+                placeholder={translations.signUp.phone}
                 value={formData.phone}
                 onChange={handleChange}
                 className={getInputClassName('phone')}
@@ -335,14 +364,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
             <div className="relative">
               <label htmlFor="password" className="sr-only">
-                Slaptažodis
+                {translations.signUp.password}
               </label>
               <input
                 id="password"
                 type="password"
                 name="password"
                 required
-                placeholder="Slaptažodis"
+                placeholder={translations.signUp.password}
                 value={formData.password}
                 onChange={handleChange}
                 className={getInputClassName('password')}
@@ -380,7 +409,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
           <X className="h-6 w-6" />
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-6">Sukurti paskyrą</h2>
+        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+          {translations.signUp.title}
+        </h2>
 
         <FormStep currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
@@ -400,7 +431,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
                 onClick={handlePrevStep}
                 className="flex-1 py-2 px-4 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition-colors"
               >
-                Atgal
+                {translations.signUp.prev}
               </button>
             )}
 
@@ -417,10 +448,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
               {isLoading && <Loader2 className="animate-spin h-5 w-5" />}
               <span>
                 {isLoading
-                  ? 'Registruojama...'
+                  ? translations.signUp.loading
                   : currentStep === TOTAL_STEPS - 1
-                  ? 'Registruotis'
-                  : 'Toliau'}
+                  ? translations.signUp.submit
+                  : translations.signUp.next}
               </span>
             </button>
           </div>
