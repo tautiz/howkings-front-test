@@ -35,6 +35,39 @@ Architecture Decision Records (ADR) yra dokumentai, kurie aprašo svarbius archi
    - Neigiamos
    - Rizikos
 
+## LLMs.txt Maintenance Requirements 🤖
+
+The `llms.txt` file in our project root serves as a crucial documentation source for Large Language Models (LLMs). This markdown file provides essential information about our website's structure, features, and navigation.
+
+### When to Update llms.txt
+
+The `llms.txt` file MUST be updated in the following cases:
+1. When implementing new features
+2. When modifying existing functionality
+3. When changing navigation structure
+4. When adding new components
+5. When updating supported languages
+6. When modifying feature configurations
+
+### Update Process
+
+1. Locate `llms.txt` in the project root
+2. Add or modify relevant sections:
+   - Core features
+   - Navigation paths
+   - Component structure
+   - Feature configurations
+3. Commit changes with a descriptive message
+4. Include llms.txt updates in your PR
+
+### Purpose
+
+The `llms.txt` file helps LLMs better understand our website structure and provide accurate assistance for:
+- Code maintenance
+- Feature development
+- Documentation
+- User support
+
 ## ADR sąrašas
 
 1. [Autentifikacijos implementacija](./0001-authentication-implementation.md)
