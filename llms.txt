@@ -1,0 +1,49 @@
+# Howkings Front-end Website
+
+> Howkings is a modern web platform built with React and TypeScript, featuring Tailwind CSS for styling. It provides user authentication and waitlist management functionality.
+
+## Core Features
+
+### Authentication
+- Login
+- Password Recovery
+- User Registration
+
+### Waitlist
+- Waitlist Overview
+- Add New User to Waitlist
+
+## Navigation
+
+- [Home](/)
+- [Login](/login)
+- [Password Recovery](/forgot-password)
+- [Waitlist](/waitlist)
+
+## Languages
+
+Supported languages:
+- Lithuanian (primary)
+- English
+
+## Component Structure
+
+### Authentication
+| Component | Purpose |
+|-------------|-----------|
+| LoginForm | User login interface |
+| ForgotPasswordForm | Password recovery interface |
+
+### Waitlist
+| Component | Purpose |
+|-------------|-----------|
+| Waitlist | Waitlist management interface |
+
+## Feature Configuration
+
+The website uses `features.ts` for feature toggling:
+- Waitlist functionality
+- Authentication methods
+- Language support
+
+Last updated: 2025-01-08
