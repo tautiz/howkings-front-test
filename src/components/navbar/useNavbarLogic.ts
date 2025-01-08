@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
-export type NavigationItem = 'home' | 'programs' | 'about' | 'research' | 'contact';
+export type NavigationItem = 'home' | 'programs' | 'about' | 'research';
 
 export const useNavbarLogic = () => {
   const { user, logout: authLogout } = useAuth();
@@ -11,7 +11,7 @@ export const useNavbarLogic = () => {
   const [authForm, setAuthForm] = useState<'signin' | 'signup' | null>(null);
   const [showSearch, setShowSearch] = useState(false);
 
-  const navigationItems: NavigationItem[] = ['home', 'programs', 'about', 'research', 'contact'];
+  const navigationItems: NavigationItem[] = ['home', 'programs', 'about', 'research'];
 
   const handleNavigation = useCallback((section: string) => {
     setIsTransitioning(true);
