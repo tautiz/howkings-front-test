@@ -4,11 +4,12 @@ Data: 2024-12-20
 
 ## Statusas
 
-Priimtas
+Accepted ✅
 
 ## Kontekstas
 
 Reikia implementuoti saugią ir patikimą vartotojų autentifikacijos sistemą frontend aplikacijoje. Sistema turi:
+
 - Saugiai valdyti vartotojo sesijas
 - Automatiškai atnaujinti tokenus
 - Tinkamai tvarkyti klaidas ir netikėtus atvejus
@@ -17,17 +18,18 @@ Reikia implementuoti saugią ir patikimą vartotojų autentifikacijos sistemą f
 ## Sprendimas
 
 1. **Token saugojimas**
+
    - Access token saugomas localStorage
    - Refresh token saugomas localStorage (ateityje planuojama perkelti į httpOnly cookies)
    - Tokenai šifruojami prieš saugojimą
-
 2. **Autentifikacijos architektūra**
+
    - Singleton TokenValidationService
    - React Context autentifikacijos būsenai
    - Axios interceptors automatiniam token pridėjimui
    - Error boundary komponentai klaidų valdymui
-
 3. **Token validacija**
+
    - Automatinė validacija aplikacijos paleidimo metu
    - Periodinė validacija kas 5 minutes
    - Validacija prieš svarbias operacijas
@@ -50,14 +52,15 @@ Reikia implementuoti saugią ir patikimą vartotojų autentifikacijos sistemą f
 ## Alternatyvos
 
 1. **Session-based autentifikacija**
+
    - Atmesta dėl scalability problemų
    - Sudėtingesnė implementacija su microservices
-
 2. **JWT be refresh tokenų**
+
    - Atmesta dėl saugumo rizikų
    - Trumpesnė sesijos trukmė = blogesnis UX
-
 3. **OAuth 2.0 su socialiniais tinklais**
+
    - Palikta kaip ateities galimybė
    - Reikalinga papildoma infrastruktūra
 

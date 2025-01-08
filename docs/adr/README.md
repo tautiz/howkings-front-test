@@ -40,6 +40,8 @@ Architecture Decision Records (ADR) yra dokumentai, kurie aprašo svarbius archi
 1. [Autentifikacijos implementacija](./0001-authentication-implementation.md)
 2. [Vartotojų Registracijos Implementacija](./0002-user-registration.md)
 3. [reCAPTCHA v3 Implementacija](./0003-recaptcha-v3-implementation.md)
+4. [Prisijungimo Funkcionalumo Implementacija](./0004-login-functionality.md)
+5. [Waitlist Funkcionalumo Įgyvendinimas](./0005-waitlist-functionality.md)
 
 ## Kaip pridėti naują ADR?
 
