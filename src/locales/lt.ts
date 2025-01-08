@@ -82,5 +82,26 @@ export const translations = {
       contacts: 'Kontaktai',
       confirmation: 'Patvirtinimas'
     },
-  }
+  },
+  waitlist: {
+    title: 'Prisijunk prie Howkings University laukiančiųjų sąrašo!',
+    subtitle: 'Užsiregistruok jau šiandien ir gauk išskirtinį pasiūlymą - pirmą mėnesį visiškai nemokamai!',
+    form: {
+      email: 'El. pašto adresas',
+      submit: 'Prisijungti prie laukiančiųjų sąrašo',
+      success: 'Ačiū už registraciją!',
+      error: {
+        required: 'El. pašto adresas yra privalomas',
+        invalid: 'Neteisingas el. pašto formatas'
+      }
+    },
+    stats: {
+      students: 'Jau užsiregistravusių studentų',
+      security: 'Saugus registracijos procesas',
+      trial: 'Nemokamas bandomasis laikotarpis'
+    }
+  },
+  common: {
+    loading: 'Siunčiama...',
+  },
 };

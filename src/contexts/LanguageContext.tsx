@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations as ltTranslations } from '../locales/lt';
 import { translations as enTranslations } from '../locales/en';
+import i18n from '../i18n';
 
 type Language = 'lt' | 'en';
 type Translations = typeof ltTranslations;
@@ -28,6 +29,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     if (isFeatureEnabled) {
       localStorage.setItem('language', language);
+      i18n.changeLanguage(language);
     }
   }, [language, isFeatureEnabled]);
 

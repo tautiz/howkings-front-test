@@ -4,10 +4,12 @@
  */
 export interface IFeatureFlags {
     enableFacebookAuth: boolean;
+    enableWaitlist: boolean;
 }
 
 export const defaultFeatureFlags: IFeatureFlags = {
     enableFacebookAuth: false,
+    enableWaitlist: import.meta.env.VITE_FEATURE_ENABLE_WAITLIST === 'true',
 };
 
 /**

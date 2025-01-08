@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar';
 import Hero from './components/Hero';
+import { Waitlist } from './components/Waitlist/Waitlist';
 import Programs from './components/Programs';
 import About from './components/About/index';
 import RequestPool from './components/RequestPool/index';
@@ -16,6 +17,7 @@ import Auth from './components/Auth';
 import CookieConsent from './components/CookieConsent';
 import { initializeCsrf } from './services/csrfService';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { featureService } from './config/features';
 
 function AppContent() {
   const { user, authForm, setAuthForm, handleInvalidToken } = useAuth();
@@ -82,6 +84,7 @@ function AppContent() {
       <Navbar />
       <main>
         <Hero />
+        {featureService.isEnabled('enableWaitlist') && <Waitlist />}
         <Programs />
         <About />
         <RequestPool />

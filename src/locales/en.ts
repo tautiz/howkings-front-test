@@ -82,5 +82,26 @@ export const translations = {
         legal: 'Legal obligations'
       }
     },
-  }
+  },
+  waitlist: {
+    title: 'Join the Howkings University Waiting List!',
+    subtitle: 'Sign up today and receive an exclusive offer - your first month completely free!',
+    form: {
+      email: 'Email address',
+      submit: 'Join the waiting list',
+      success: 'Thank you for registering!',
+      error: {
+        required: 'Email address is required',
+        invalid: 'Invalid email format'
+      }
+    },
+    stats: {
+      students: 'Students already registered',
+      security: 'Secure registration process',
+      trial: 'Free trial period'
+    }
+  },
+  common: {
+    loading: 'Loading...',
+  },
 };
