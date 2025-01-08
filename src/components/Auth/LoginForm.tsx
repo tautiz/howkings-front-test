@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Loader2, Mail, Lock } from 'lucide-react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useAuth } from '../../contexts/AuthContext';
 import { featureService } from '../../config/features';
+import { useTranslation } from 'react-i18next';
+import { validateEmail, validatePassword } from '../../utils/validation';
+import { useCountryLanguage } from '../../hooks/useCountryLanguage';
 
 interface LoginFormProps {
   onClose: () => void;
@@ -15,27 +18,83 @@ interface LoginData {
   rememberMe: boolean;
 }
 
+interface ValidationErrors {
+  email?: string;
+  password?: string;
+  general?: string;
+}
+
 const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
   const { login } = useAuth();
+  const { t } = useTranslation();
+  const { language } = useCountryLanguage();
   const [savedData, setSavedData] = useLocalStorage<Partial<LoginData>>('login_form', {});
+  
   const [formData, setFormData] = useState<LoginData>({
     email: savedData.email || '',
     password: '',
     rememberMe: savedData.rememberMe || false
   });
-  const [error, setError] = useState<string | null>(null);
+  
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useLocalStorage('login_attempts', { count: 0, lastAttempt: 0 });
+
+  useEffect(() => {
+    // Reset login attempts after 30 minutes
+    const now = Date.now();
+    if (now - loginAttempts.lastAttempt > 30 * 60 * 1000) {
+      setLoginAttempts({ count: 0, lastAttempt: now });
+    }
+  }, []);
+
+  const validateForm = (): boolean => {
+    const newErrors: ValidationErrors = {};
+    
+    if (!formData.email) {
+      newErrors.email = t('login.errors.required');
+    } else {
+      const emailValidation = validateEmail(formData.email);
+      if (!emailValidation.isValid) {
+        newErrors.email = t('login.errors.invalidEmail');
+      }
+    }
+
+    if (!formData.password) {
+      newErrors.password = t('login.errors.required');
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = t('login.errors.invalidPassword');
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : value;
     setFormData(prev => ({ ...prev, [name]: newValue }));
-    setError(null);
+    
+    // Clear specific error when user starts typing
+    setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    
+    // Check rate limiting
+    if (loginAttempts.count >= 5) {
+      setErrors({ general: t('login.errors.tooManyAttempts') });
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -47,7 +106,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
       }
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Invalid email or password');
+      setLoginAttempts({
+        count: loginAttempts.count + 1,
+        lastAttempt: Date.now()
+      });
+      setErrors({ general: t('login.errors.loginFailed') });
     } finally {
       setIsLoading(false);
     }
@@ -59,11 +122,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white"
+          aria-label={t('common.close')}
         >
           <X className="w-6 h-6" />
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-6">Welcome Back</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{t('login.title')}</h2>
 
         <form 
           onSubmit={handleSubmit}
@@ -73,7 +137,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address
+                {t('login.form.email')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -82,17 +146,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg 
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Enter your email"
+                  className={`w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg 
+                    focus:ring-2 focus:ring-blue-500 focus:outline-none
+                    ${errors.email ? 'border-red-500' : ''}`}
+                  placeholder={t('login.form.emailPlaceholder')}
                   required
+                  aria-invalid={!!errors.email}
                 />
               </div>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
+                {t('login.form.password')}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -101,12 +170,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg 
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Enter your password"
+                  className={`w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg 
+                    focus:ring-2 focus:ring-blue-500 focus:outline-none
+                    ${errors.password ? 'border-red-500' : ''}`}
+                  placeholder={t('login.form.passwordPlaceholder')}
                   required
+                  aria-invalid={!!errors.password}
                 />
               </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-400">{errors.password}</p>
+              )}
             </div>
           </div>
 
@@ -120,7 +194,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
                 className="w-4 h-4 text-blue-500 bg-gray-700 border-gray-600 
                   rounded focus:ring-blue-500 focus:ring-offset-gray-800"
               />
-              <span className="ml-2 text-sm text-gray-300">Remember me</span>
+              <span className="ml-2 text-sm text-gray-300">{t('login.form.rememberMe')}</span>
             </label>
 
             <button
@@ -128,19 +202,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
               onClick={onForgotPassword}
               className="text-sm text-blue-400 hover:text-blue-300"
             >
-              Forgot Password?
+              {t('login.form.forgotPassword')}
             </button>
           </div>
 
-          {error && (
+          {errors.general && (
             <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-lg">
-              {error}
+              {errors.general}
             </div>
           )}
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || loginAttempts.count >= 5}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 
               text-white rounded-lg focus:ring-2 focus:ring-blue-500 
               focus:outline-none transition-colors disabled:opacity-50 
@@ -149,24 +223,39 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                Loading...
+                {t('common.loading')}
               </>
             ) : (
-              'Sign in'
+              t('login.form.submit')
             )}
           </button>
 
-          <div className="relative my-6 hidden">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-600"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 text-gray-400 bg-gray-800">Or</span>
-            </div>
+          <div className="text-center mt-4">
+            <p className="text-gray-400">
+              {t('login.form.noAccount')}{' '}
+              <button
+                type="button"
+                onClick={() => setAuthForm('signup')}
+                className="text-blue-400 hover:text-blue-300"
+              >
+                {t('login.form.createAccount')}
+              </button>
+            </p>
           </div>
 
           {featureService.isEnabled('enableFacebookAuth') && (
             <div className="mt-6">
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 text-gray-400 bg-gray-800">
+                    {t('common.or')}
+                  </span>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => {
@@ -186,7 +275,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="ml-2">Prisijungti su Facebook</span>
+                <span className="ml-2">{t('login.form.facebookLogin')}</span>
               </button>
             </div>
           )}

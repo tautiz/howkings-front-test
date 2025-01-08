@@ -1,42 +1,70 @@
 import React, { useState } from 'react';
 import { X, Loader2, Mail, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { validateEmail } from '../../utils/validation';
+import { useTranslation } from 'react-i18next';
 
 interface ForgotPasswordFormProps {
   onClose: () => void;
   onBack: () => void;
 }
 
+interface ValidationErrors {
+  email?: string;
+  general?: string;
+}
+
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onClose, onBack }) => {
+  const { resetPassword } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [resetAttempts, setResetAttempts] = useState({ count: 0, lastAttempt: 0 });
+
+  const validateForm = (): boolean => {
+    const newErrors: ValidationErrors = {};
+
+    if (!email) {
+      newErrors.email = t('resetPassword.errors.required');
+    } else {
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        newErrors.email = t('resetPassword.errors.invalidEmail');
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check rate limiting
+    const now = Date.now();
+    if (now - resetAttempts.lastAttempt < 30 * 60 * 1000 && resetAttempts.count >= 3) {
+      setErrors({ general: t('resetPassword.errors.tooManyAttempts') });
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
-    setError(null);
-    setSuccess(false);
 
     try {
-      const response = await fetch('https://bos.howkings.lt/api/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send reset instructions. Please try again.');
-      }
-
-      setSuccess(true);
-      setTimeout(() => {
-        onClose();
-      }, 3000);
+      await resetPassword(email);
+      setIsSuccess(true);
+      setResetAttempts({ count: 0, lastAttempt: now });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setErrors({ general: t('resetPassword.errors.resetFailed') });
+      setResetAttempts({
+        count: resetAttempts.count + 1,
+        lastAttempt: now
+      });
     } finally {
       setIsLoading(false);
     }
@@ -48,73 +76,83 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onClose, onBack
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white"
+          aria-label={t('common.close')}
         >
           <X className="w-6 h-6" />
         </button>
 
         <button
           onClick={onBack}
-          className="flex items-center text-gray-400 hover:text-white mb-6"
+          className="absolute top-4 left-4 text-gray-400 hover:text-white flex items-center"
+          aria-label={t('common.back')}
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to login
+          <ArrowLeft className="w-5 h-5 mr-1" />
+          <span className="text-sm">{t('common.back')}</span>
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-4">Reset Password</h2>
-        <p className="text-gray-400 mb-6">
-          Enter your email address and we'll send you instructions to reset your password.
-        </p>
+        {!isSuccess ? (
+          <>
+            <h2 className="text-2xl font-bold text-white mb-2">{t('resetPassword.title')}</h2>
+            <p className="text-gray-400 mb-6">{t('resetPassword.subtitle')}</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg 
-                  focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Enter your email"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  {t('resetPassword.form.email')}
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErrors({});
+                    }}
+                    className={`w-full pl-10 pr-4 py-2 bg-gray-700 text-white rounded-lg 
+                      focus:ring-2 focus:ring-blue-500 focus:outline-none
+                      ${errors.email ? 'border-red-500' : ''}`}
+                    placeholder={t('resetPassword.form.emailPlaceholder')}
+                    required
+                    aria-invalid={!!errors.email}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+                )}
+              </div>
+
+              {errors.general && (
+                <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-lg">
+                  {errors.general}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading || (resetAttempts.count >= 3)}
+                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 
+                  text-white rounded-lg focus:ring-2 focus:ring-blue-500 
+                  focus:outline-none transition-colors disabled:opacity-50 
+                  disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
+                    {t('common.loading')}
+                  </>
+                ) : (
+                  t('resetPassword.form.submit')
+                )}
+              </button>
+            </form>
+          </>
+        ) : (
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">{t('resetPassword.success.title')}</h2>
+            <p className="text-gray-400">{t('resetPassword.success.message')}</p>
           </div>
-
-          {error && (
-            <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="text-green-400 text-sm bg-green-900/20 p-3 rounded-lg">
-              Reset instructions have been sent to your email.
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg 
-              hover:bg-blue-600 transition-colors duration-300 
-              disabled:opacity-50 disabled:cursor-not-allowed
-              flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Sending instructions...
-              </>
-            ) : (
-              'Send reset instructions'
-            )}
-          </button>
-        </form>
+        )}
       </div>
     </div>
   );

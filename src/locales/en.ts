@@ -11,6 +11,57 @@ export const translations = {
     search: 'Search',
     hello: 'Hello',
   },
+  common: {
+    loading: 'Loading...',
+    close: 'Close',
+    error: 'Error',
+    success: 'Success',
+    or: 'or',
+    back: 'Go back',
+    submit: 'Submit',
+  },
+  login: {
+    title: 'Welcome Back',
+    form: {
+      email: 'Email Address',
+      emailPlaceholder: 'Enter your email',
+      password: 'Password',
+      passwordPlaceholder: 'Enter your password',
+      rememberMe: 'Remember me',
+      forgotPassword: 'Forgot Password?',
+      submit: 'Sign In',
+      facebookLogin: 'Sign in with Facebook',
+      noAccount: 'Don\'t have an account?',
+      createAccount: 'Create Account',
+    },
+    errors: {
+      invalidEmail: 'Invalid email format',
+      invalidPassword: 'Password must be at least 8 characters long',
+      loginFailed: 'Invalid email or password',
+      tooManyAttempts: 'Too many login attempts. Please try again later.',
+      required: 'This field is required',
+    },
+  },
+  resetPassword: {
+    title: 'Reset Password',
+    subtitle: 'Enter your email address and we will send you a password reset link.',
+    form: {
+      email: 'Email Address',
+      emailPlaceholder: 'Enter your email',
+      submit: 'Reset Password',
+      backToLogin: 'Back to Login',
+    },
+    success: {
+      title: 'Check your email',
+      message: 'If the email address exists in our system, you will receive a password reset link shortly.',
+    },
+    errors: {
+      invalidEmail: 'Invalid email format',
+      required: 'This field is required',
+      tooManyAttempts: 'Too many attempts. Please try again later.',
+      resetFailed: 'Failed to reset password. Please try again.',
+    },
+  },
   programs: {
     plans: {
       title: 'Get ready – we\'re coming in 2025!',
@@ -100,8 +151,5 @@ export const translations = {
       security: 'Secure registration process',
       trial: 'Free trial period'
     }
-  },
-  common: {
-    loading: 'Loading...',
   },
 };

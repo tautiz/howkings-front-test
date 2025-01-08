@@ -3,7 +3,7 @@ import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
 import ForgotPasswordForm from './ForgotPasswordForm';
 
-type AuthFormType = 'login' | 'signup' | 'forgot-password' | null;
+export type AuthFormType = 'signin' | 'signup' | 'forgot-password' | null;
 
 interface AuthProps {
   initialForm?: AuthFormType;
@@ -16,7 +16,7 @@ const Auth: React.FC<AuthProps> = ({ initialForm = null, onClose }) => {
   if (!currentForm) return null;
 
   switch (currentForm) {
-    case 'login':
+    case 'signin':
       return (
         <LoginForm
           onClose={onClose}
@@ -29,7 +29,7 @@ const Auth: React.FC<AuthProps> = ({ initialForm = null, onClose }) => {
       return (
         <ForgotPasswordForm
           onClose={onClose}
-          onBack={() => setCurrentForm('login')}
+          onBack={() => setCurrentForm('signin')}
         />
       );
     default:

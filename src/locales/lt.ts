@@ -11,6 +11,57 @@ export const translations = {
     search: 'Ieškoti',
     hello: 'Sveiki',
   },
+  common: {
+    loading: 'Kraunasi...',
+    close: 'Uždaryti',
+    error: 'Klaida',
+    success: 'Pavyko',
+    or: 'arba',
+    back: 'Grįžti atgal',
+    submit: 'Pateikti',
+  },
+  login: {
+    title: 'Sveiki sugrįžę',
+    form: {
+      email: 'El. pašto adresas',
+      emailPlaceholder: 'Įveskite el. pašto adresą',
+      password: 'Slaptažodis',
+      passwordPlaceholder: 'Įveskite slaptažodį',
+      rememberMe: 'Prisiminti mane',
+      forgotPassword: 'Pamiršote slaptažodį?',
+      submit: 'Prisijungti',
+      facebookLogin: 'Prisijungti su Facebook',
+      noAccount: 'Dar neturite paskyros?',
+      createAccount: 'Sukurti paskyrą',
+    },
+    errors: {
+      invalidEmail: 'Neteisingas el. pašto formatas',
+      invalidPassword: 'Slaptažodis turi būti bent 8 simbolių ilgio',
+      loginFailed: 'Neteisingas el. paštas arba slaptažodis',
+      tooManyAttempts: 'Per daug bandymų prisijungti. Pabandykite vėliau.',
+      required: 'Šis laukas yra privalomas',
+    },
+  },
+  resetPassword: {
+    title: 'Slaptažodžio atstatymas',
+    subtitle: 'Įveskite savo el. pašto adresą ir mes atsiųsime jums slaptažodžio atstatymo nuorodą.',
+    form: {
+      email: 'El. pašto adresas',
+      emailPlaceholder: 'Įveskite el. pašto adresą',
+      submit: 'Atstatyti slaptažodį',
+      backToLogin: 'Grįžti į prisijungimą',
+    },
+    success: {
+      title: 'Patikrinkite savo el. paštą',
+      message: 'Jei nurodytas el. pašto adresas egzistuoja mūsų sistemoje, netrukus gausite slaptažodžio atstatymo nuorodą.',
+    },
+    errors: {
+      invalidEmail: 'Neteisingas el. pašto formatas',
+      required: 'Šis laukas yra privalomas',
+      tooManyAttempts: 'Per daug bandymų. Pabandykite vėliau.',
+      resetFailed: 'Nepavyko atstatyti slaptažodžio. Bandykite dar kartą.',
+    },
+  },
   programs: {
     plans: {
       title: 'Ruoškitės – startuojame 2025!',
@@ -100,8 +151,5 @@ export const translations = {
       security: 'Saugus registracijos procesas',
       trial: 'Nemokamas bandomasis laikotarpis'
     }
-  },
-  common: {
-    loading: 'Siunčiama...',
   },
 };

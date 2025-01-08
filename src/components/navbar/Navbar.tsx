@@ -31,7 +31,15 @@ const Navbar = () => {
         onComplete={() => {/* no-op */}} 
       />
       
-      <nav className="fixed w-full z-50 bg-black/80 backdrop-blur-md">
+      {/* Auth Modal */}
+      {authForm && (
+        <Auth
+          initialForm={authForm}
+          onClose={() => setAuthForm(null)}
+        />
+      )}
+      
+      <nav className="fixed w-full z-40 bg-black/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -107,74 +115,65 @@ const Navbar = () => {
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Mobile menu */}
-        <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/90">
-            {navigationItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavigation(item)}
-                className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium
-                  transition-all duration-300 hover:bg-gray-800 w-full text-left"
-                disabled={isTransitioning}
-              >
-                {translations.nav[item]}
-              </button>
-            ))}
-
-            {showAuthButtons && !user && (
-              <div className="flex flex-col space-y-2 px-3 pt-4">
-                <button 
-                  onClick={() => {
-                    setIsOpen(false);
-                    setAuthForm('signin');
-                  }}
-                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium 
-                    hover:bg-blue-600 transition-colors"
-                >
-                  {translations.nav.signIn}
-                </button>
-                <button 
-                  onClick={() => {
-                    setIsOpen(false);
-                    setAuthForm('signup');
-                  }}
-                  className="w-full px-4 py-2 bg-black text-white rounded-full text-sm font-medium 
-                    border-2 border-white hover:bg-white hover:text-black transition-colors"
-                >
-                  {translations.nav.signUp}
-                </button>
+          {/* Mobile meniu */}
+          {isOpen && (
+            <div className="md:hidden">
+              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                {navigationItems.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => {
+                      handleNavigation(item);
+                      setIsOpen(false);
+                    }}
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 
+                      hover:text-white hover:bg-gray-800 w-full text-left"
+                  >
+                    {translations.nav[item]}
+                  </button>
+                ))}
+                {!user && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setAuthForm('signin');
+                        setIsOpen(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium 
+                        text-gray-200 hover:text-white hover:bg-gray-800"
+                    >
+                      {translations.nav.signIn}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAuthForm('signup');
+                        setIsOpen(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium 
+                        text-gray-200 hover:text-white hover:bg-gray-800"
+                    >
+                      {translations.nav.signUp}
+                    </button>
+                  </>
+                )}
+                {user && (
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium 
+                      text-gray-200 hover:text-white hover:bg-gray-800"
+                  >
+                    {translations.nav.logout}
+                  </button>
+                )}
               </div>
-            )}
-
-            {user && (
-              <div className="flex flex-col space-y-2 px-3 pt-4">
-                <span className="text-white">{translations.nav.hello}, {user.name}</span>
-                <button 
-                  onClick={() => {
-                    setIsOpen(false);
-                    logout();
-                  }}
-                  className="w-full px-4 py-2 bg-red-500 text-white rounded-full text-sm font-medium 
-                    hover:bg-red-600 transition-colors"
-                >
-                  {translations.nav.logout}
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </nav>
-
-      {/* Auth Modal */}
-      {authForm && (
-        <Auth
-          initialForm={authForm}
-          onClose={() => setAuthForm(null)}
-        />
-      )}
     </>
   );
 };
