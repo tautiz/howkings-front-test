@@ -1,21 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { ModuleRequest } from './types';
+import { VoteError } from '../../services/api';
 import RequestList from './RequestList';
 import RequestForm from './RequestForm/index';
 import Pagination from './Pagination';
+import SortControls from './SortControls';
+import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { showToast } from '../../utils/toast';
 import { listRequests, addVote } from '../../services/api';
 
 const ITEMS_PER_PAGE = 6;
 
+// Rūšiavimo tipai
+export type SortField = 'votes' | 'date' | 'name';
+export type SortDirection = 'asc' | 'desc';
+
 const RequestPool = () => {
+  const { isAuthenticated, setAuthForm } = useAuth();
+  const { translations } = useLanguage();
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [votedRequests, setVotedRequests] = useState<Set<number>>(new Set());
+  const [votedRequests] = useState<Set<number>>(new Set());
   const [requests, setRequests] = useState<ModuleRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<SortField>('votes');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [votingInProgress] = useState<Set<number>>(new Set());
+  const [voteError] = useState<string | null>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -23,9 +39,9 @@ const RequestPool = () => {
         setIsLoading(true);
         setError(null);
         const response = await listRequests();
-        setRequests(response.data.data);
+        setRequests(response || []);
       } catch (err) {
-        setError('Failed to fetch requests. Please try again later.');
+        setError(translations.requestPool.errors.fetchFailed);
         console.error('Error fetching requests:', err);
       } finally {
         setIsLoading(false);
@@ -33,55 +49,104 @@ const RequestPool = () => {
     };
 
     fetchRequests();
-  }, []);
+  }, [translations]);
 
   const handleVote = async (requestId: number) => {
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      showToast(translations.requestPool.errors.loginRequired, 'info');
+      setAuthForm('signin');
+      return;
+    }
+
+    const updatedRequests = requests.map(request => {
+      if (request.id === requestId) {
+        return { ...request, votes: request.votes_count + 1, hasVoted: true };
+      }
+      return request;
+    });
+    setRequests(updatedRequests);
+
     try {
       const response = await addVote(requestId);
       
-      if (response.status === 200) {
-        const newVotedRequests = new Set(votedRequests);
-        if (votedRequests.has(requestId)) {
-          newVotedRequests.delete(requestId);
-        } else {
-          newVotedRequests.add(requestId);
+      if (response.status === 'error') {
+        setRequests(requests);
+        
+        switch (response.error) {
+          case VoteError.ALREADY_VOTED:
+            showToast(translations.requestPool.errors.alreadyVoted, 'error');
+            break;
+          case VoteError.NOT_AUTHENTICATED:
+            setShowLoginPrompt(true);
+            setAuthForm('signin');
+            showToast(translations.requestPool.errors.loginRequired, 'info');
+            break;
+          case VoteError.MODULE_NOT_FOUND:
+            showToast(translations.requestPool.errors.moduleNotFound, 'error');
+            break;
+          default:
+            showToast(translations.requestPool.errors.voteFailed, 'error');
         }
-        setVotedRequests(newVotedRequests);
+      } else {
+        showToast(translations.requestPool.success.voteRegistered, 'success');
       }
-    } catch (err) {
-      console.error('Error voting for request:', err);
-      // You might want to show an error message to the user here
+    } catch (error) {
+      setRequests(requests);
+      console.error('Voting error:', error);
+      showToast(translations.requestPool.errors.voteFailed, 'error');
     }
   };
 
-  const filteredRequests = requests.filter(request => {
+  const sortRequests = (requests: ModuleRequest[]) => {
+    return [...requests].sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case 'votes':
+          comparison = b.votes_count - a.votes_count;
+          break;
+        case 'date':
+          comparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          break;
+        case 'name':
+          comparison = a.module_name.localeCompare(b.module_name);
+          break;
+      }
+      
+      return sortDirection === 'asc' ? -comparison : comparison;
+    });
+  };
+
+  const handleSortChange = (field: SortField) => {
+    if (field === sortField) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const filteredRequests = (requests || []).filter(request => {
     const searchLower = searchQuery.toLowerCase();
     
     // Search in module name and description
     const matchesNameOrDesc = 
-      (request.module_name?.toLowerCase() || '').includes(searchLower) ||
-      (request.description?.toLowerCase() || '').includes(searchLower);
+      request.module_name.toLowerCase().includes(searchLower) ||
+      request.description.toLowerCase().includes(searchLower);
 
-    // Search in tags (both module_request and regular tags)
+    // Search in tags
     const matchesTags = request.tags?.some(tag => 
-      (tag.name?.toLowerCase() || '').includes(searchLower) ||
-      (tag.description?.toLowerCase() || '').includes(searchLower)
-    ) || false;
-
-    // Search in category (module_request type tags)
-    const matchesCategory = request.tags?.some(tag => 
-      tag.type === 'module_request' && (
-        (tag.name?.toLowerCase() || '').includes(searchLower) ||
-        (tag.description?.toLowerCase() || '').includes(searchLower)
-      )
+      tag.name.toLowerCase().includes(searchLower)
     );
 
-    return matchesNameOrDesc || matchesTags || matchesCategory;
+    return matchesNameOrDesc || matchesTags;
   });
 
-  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+  const sortedRequests = sortRequests(filteredRequests);
+  const totalPages = Math.ceil(sortedRequests.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedRequests = filteredRequests.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedRequests = sortedRequests.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   if (isLoading) {
     return (
@@ -92,7 +157,7 @@ const RequestPool = () => {
         aria-label="Request Pool">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-400">Loading requests...</p>
+            <p className="text-gray-400">{translations.requestPool.loading}</p>
           </div>
         </div>
       </section>
@@ -122,56 +187,71 @@ const RequestPool = () => {
       role="region"
       aria-label="Request Pool">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Request Pool
-          </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Shape the future of education at Howkings. Submit and vote on new learning modules.
-          </p>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search by name, description, tags, or category..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
+        {showLoginPrompt && !isAuthenticated && (
+          <div className="mb-4 p-4 bg-blue-900/50 border border-blue-500 rounded-lg text-blue-200 flex items-center justify-between">
+            <span>{translations.requestPool.loginPrompt}</span>
+            <button
+              onClick={() => setAuthForm('signin')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {translations.requestPool.loginButton}
+            </button>
           </div>
-          <button
-            onClick={() => setIsSubmitOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            New Request
-          </button>
+        )}
+        {voteError && (
+          <div className="mb-4 p-4 bg-red-900/50 border border-red-500 rounded-lg text-red-200">
+            {voteError}
+          </div>
+        )}
+        <div className="space-y-8">
+          {/* Search and Add Request Controls */}
+          <div className="flex justify-between items-center">
+            <div className="relative flex-1 max-w-lg">
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={translations.requestPool.searchPlaceholder}
+                className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              onClick={() => setIsSubmitOpen(true)}
+              className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
+              {translations.requestPool.addRequestButton}
+            </button>
+          </div>
+
+          {/* Sort Controls */}
+          <SortControls
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSortChange={handleSortChange}
+          />
+
+          {/* Request List */}
+          <RequestList
+            requests={paginatedRequests}
+            votedRequests={votedRequests}
+            onVote={handleVote}
+            votingInProgress={votingInProgress}
+          />
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {paginatedRequests.map((request, index) => (
-            <RequestList
-              key={index}
-              requests={[request]}
-              onVote={handleVote}
-              votedRequests={votedRequests}
-            />
-          ))}
-        </div>
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-
-        {isSubmitOpen && <RequestForm onClose={() => setIsSubmitOpen(false)} />}
+        {/* Request Form Modal */}
+        {isSubmitOpen && (
+          <RequestForm onClose={() => setIsSubmitOpen(false)} />
+        )}
       </div>
     </section>
   );

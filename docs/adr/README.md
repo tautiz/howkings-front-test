@@ -70,11 +70,12 @@ The `llms.txt` file helps LLMs better understand our website structure and provi
 
 ## ADR sąrašas
 
-1. [Autentifikacijos implementacija](./0001-authentication-implementation.md)
-2. [Vartotojų Registracijos Implementacija](./0002-user-registration.md)
-3. [reCAPTCHA v3 Implementacija](./0003-recaptcha-v3-implementation.md)
-4. [Prisijungimo Funkcionalumo Implementacija](./0004-login-functionality.md)
-5. [Waitlist Funkcionalumo Įgyvendinimas](./0005-waitlist-functionality.md)
+1. [0001 - Authentication Implementation](0001-authentication-implementation.md)
+2. [0002 - User Registration](0002-user-registration.md)
+3. [0003 - reCAPTCHA v3 Implementation](0003-recaptcha-v3-implementation.md)
+4. [0004 - Login Functionality](0004-login-functionality.md)
+5. [0005 - Waitlist Functionality](0005-waitlist-functionality.md)
+6. [0006 - Request Pool Functionality](0006-request-pool-functionality.md)
 
 ## Kaip pridėti naują ADR?
 

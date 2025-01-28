@@ -12,6 +12,11 @@ export const useVote = () => {
     };
 
     const handleVote = async (moduleRequestId: number) => {
+        if (!moduleRequestId || typeof moduleRequestId !== 'number') {
+            showToast('Neteisingas modulio ID', 'error');
+            return false;
+        }
+
         if (!isAuthenticated) {
             // Store the vote action and show login modal
             setPendingAction({
@@ -42,13 +47,8 @@ export const useVote = () => {
                 setAuthForm('login');
                 return false;
             }
-            
-            if (axiosError.response?.status === 409) {
-                showToast('You have already voted for this item', 'warning');
-                return false;
-            }
 
-            showToast('Failed to submit vote. Please try again.', 'error');
+            showToast(axiosError.response?.data?.message || 'Įvyko klaida balsuojant', 'error');
             return false;
         }
     };

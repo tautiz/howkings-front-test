@@ -152,6 +152,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
                   placeholder={t('login.form.emailPlaceholder')}
                   required
                   aria-invalid={!!errors.email}
+                  autoComplete="username"
                 />
               </div>
               {errors.email && (
@@ -176,6 +177,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose, onForgotPassword }) => {
                   placeholder={t('login.form.passwordPlaceholder')}
                   required
                   aria-invalid={!!errors.password}
+                  autoComplete="current-password"
                 />
               </div>
               {errors.password && (

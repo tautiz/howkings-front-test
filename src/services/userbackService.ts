@@ -6,10 +6,10 @@ const USERBACK_TOKEN = 'A-1zhRYuMdm5eJ38BC0YqfKfZly';
 export const initializeUserback = (user: User | null) => {
     const options = {
         user_data: user ? {
-            id: user.id.toString(),
+            id: user.id?.toString() || '',
             info: {
-                name: `${user.firstName} ${user.lastName}`,
-                email: user.email
+                name: user.name || '',
+                email: user.email || ''
             }
         } : undefined
     };
@@ -19,10 +19,10 @@ export const initializeUserback = (user: User | null) => {
 
 export const updateUserData = (user: User | null) => {
     const userData = user ? {
-        id: user.id.toString(),
+        id: user.id?.toString() || '',
         info: {
-            name: `${user.firstName} ${user.lastName}`,
-            email: user.email
+            name: user.name || '',
+            email: user.email || ''
         }
     } : undefined;
 

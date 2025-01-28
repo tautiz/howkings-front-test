@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
-import { createRequest } from '../services/api';
+import api from '../services/api';
 import { AxiosError } from 'axios';
 
 interface RequestData {
@@ -31,7 +31,7 @@ export const useCreateRequest = () => {
     }
 
     try {
-      await createRequest(data);
+      await api.createRequest(data);
       showToast('Request created successfully!', 'success');
       onSuccess?.();
       return true;

@@ -94,89 +94,7 @@
 					},
 					"response": [
 						{
-							"name": "200",
-							"originalRequest": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"firstName\" : \"Vardenis\",\n    \"lastName\" : \"Pavardenis\",\n    \"email\": \"vardenis@howkings.lt\",\n    \"phone\": \"37067777777\",\n    \"password\": \"password\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "https://bos.howkings.lt/api/register",
-									"protocol": "https",
-									"host": [
-										"bos",
-										"howkings",
-										"lt"
-									],
-									"path": [
-										"api",
-										"register"
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Cache-Control",
-									"value": "no-cache, private"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								},
-								{
-									"key": "Date",
-									"value": "Thu, 14 Nov 2024 23:06:36 GMT"
-								},
-								{
-									"key": "Phpdebugbar-Id",
-									"value": "Xa3f8d23be4c970e0ad96906bc88e3054"
-								},
-								{
-									"key": "Server",
-									"value": "Caddy"
-								},
-								{
-									"key": "X-Powered-By",
-									"value": "PHP/8.3.9"
-								},
-								{
-									"key": "X-Ratelimit-Limit",
-									"value": "60"
-								},
-								{
-									"key": "X-Ratelimit-Remaining",
-									"value": "58"
-								},
-								{
-									"key": "Content-Length",
-									"value": "309"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"message\": \"User created successfully\",\n    \"user\": {\n        \"name\": \"Vardenis Pavardenis\",\n        \"email\": \"vardenis@howkings.lt\",\n        \"person_id\": 3,\n        \"updated_at\": \"2024-11-14T23:06:36.000000Z\",\n        \"created_at\": \"2024-11-14T23:06:36.000000Z\",\n        \"id\": 6,\n        \"profile_photo_url\": \"https://ui-avatars.com/api/?name=V+P&color=FFFFFF&background=111827\"\n    }\n}"
-						},
-						{
-							"name": "Already exist",
+							"name": "422",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -277,6 +195,93 @@
 							],
 							"cookie": [],
 							"body": "{\n    \"message\": \"The email has already been taken.\",\n    \"errors\": {\n        \"email\": [\n            \"The email has already been taken.\"\n        ]\n    }\n}"
+						},
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\" : \"Vardenis\",\n    \"lastName\" : \"Pavardenis\",\n    \"email\": \"vardenis3@howkings.lt\",\n    \"phone\": \"37067777777\",\n    \"password\": \"password\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api_url}}/api/register",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "br"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 08 Dec 2024 19:00:46 GMT"
+								},
+								{
+									"key": "Phpdebugbar-Id",
+									"value": "X2f33d1de51adf7839194ad160a04cc19"
+								},
+								{
+									"key": "Server",
+									"value": "Caddy"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.13"
+								},
+								{
+									"key": "X-Ratelimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-Ratelimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Content-Length",
+									"value": "422"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Operation successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 6,\n            \"name\": \"Vardenis Pavardenis\",\n            \"email\": \"vardenis3@howkings.lt\",\n            \"roles\": [],\n            \"profile_image_url\": null\n        },\n        \"tokens\": {\n            \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9yZWdpc3RlciIsImlhdCI6MTczMzY4NDQ0NiwiZXhwIjoxNzMzNjg4MDQ2LCJuYmYiOjE3MzM2ODQ0NDYsImp0aSI6IlRXTXkyOUM2dkJIRHFtUFoiLCJzdWIiOiI2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.VuArNXy8TAgTFnNQ1SX8uTycmz6XHJ8cgN1a9-LVpIY\",\n            \"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9yZWdpc3RlciIsImlhdCI6MTczMzY4NDQ0NiwiZXhwIjoxNzMzNjg4MDQ2LCJuYmYiOjE3MzM2ODQ0NDYsImp0aSI6IlRXTXkyOUM2dkJIRHFtUFoiLCJzdWIiOiI2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.VuArNXy8TAgTFnNQ1SX8uTycmz6XHJ8cgN1a9-LVpIY\"\n        }\n    }\n}"
 						}
 					]
 				},
@@ -288,7 +293,7 @@
 							"script": {
 								"exec": [
 									"// Stores the access_token in an environment or global variable",
-									"var accessToken = pm.response.json().access_token;",
+									"var accessToken = pm.response.json().data.tokens.access_token;",
 									"pm.globals.set(\"access_token\", accessToken);",
 									"pm.test('Response has the required fields', function () {",
 									"    const responseData = pm.response.json();",
@@ -363,79 +368,7 @@
 					},
 					"response": [
 						{
-							"name": "Unauthorized Login",
-							"originalRequest": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"email\": \"admin@howkings.lt\",\n    \"password\": \"bad_password\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "https://bos.howkings.lt/api/login",
-									"protocol": "https",
-									"host": [
-										"bos",
-										"howkings",
-										"lt"
-									],
-									"path": [
-										"api",
-										"login"
-									]
-								}
-							},
-							"status": "Unauthorized",
-							"code": 401,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Cache-Control",
-									"value": "no-cache, private"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								},
-								{
-									"key": "Date",
-									"value": "Sun, 15 Sep 2024 19:15:58 GMT"
-								},
-								{
-									"key": "Server",
-									"value": "Caddy"
-								},
-								{
-									"key": "X-Powered-By",
-									"value": "PHP/8.3.9"
-								},
-								{
-									"key": "X-Ratelimit-Limit",
-									"value": "60"
-								},
-								{
-									"key": "X-Ratelimit-Remaining",
-									"value": "58"
-								},
-								{
-									"key": "Content-Length",
-									"value": "24"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"error\": \"Unauthorized\"\n}"
-						},
-						{
-							"name": "Authorized Login",
+							"name": "200",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -487,11 +420,11 @@
 								},
 								{
 									"key": "Date",
-									"value": "Sat, 07 Dec 2024 00:39:21 GMT"
+									"value": "Sun, 08 Dec 2024 18:56:29 GMT"
 								},
 								{
 									"key": "Phpdebugbar-Id",
-									"value": "X6ae5230cd2a9e77c672e9307b31b51de"
+									"value": "X5a2aa01db7cbf3106c4db3d8988ff37d"
 								},
 								{
 									"key": "Server",
@@ -515,11 +448,90 @@
 								},
 								{
 									"key": "Content-Length",
-									"value": "549"
+									"value": "415"
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9sb2dpbiIsImlhdCI6MTczMzUzMTk2MSwiZXhwIjoxNzMzNTM1NTYxLCJuYmYiOjE3MzM1MzE5NjEsImp0aSI6ImxvREx2NFltZVVIbU5lQ0UiLCJzdWIiOiIyIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.bJEP_QjTd_d4R50Mg-0VnmhiJNN-DvGcAWGc9cqBZ10\",\n    \"token_type\": \"bearer\",\n    \"expires_in\": 3600,\n    \"user\": {\n        \"id\": 2,\n        \"person_id\": 2,\n        \"name\": \"Vardenis Pavardenis\",\n        \"email\": \"vardenis2@howkings.lt\",\n        \"email_verified_at\": null,\n        \"current_company_id\": null,\n        \"current_connected_account_id\": null,\n        \"profile_photo_path\": null,\n        \"created_at\": \"2024-12-07T00:23:36.000000Z\",\n        \"updated_at\": \"2024-12-07T00:23:36.000000Z\",\n        \"last_renew_password_at\": null,\n        \"profile_photo_url\": \"https://ui-avatars.com/api/?name=V+P&color=FFFFFF&background=111827\"\n    }\n}"
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Operation successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 5,\n            \"name\": \"Vardenis Pavardenis\",\n            \"email\": \"vardenis2@howkings.lt\",\n            \"roles\": [],\n            \"profile_image_url\": null\n        },\n        \"tokens\": {\n            \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9sb2dpbiIsImlhdCI6MTczMzY4NDE4OSwiZXhwIjoxNzMzNjg3Nzg5LCJuYmYiOjE3MzM2ODQxODksImp0aSI6InhUMHA5S2hTdTdYRDBFZlciLCJzdWIiOiI1IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.hZ83gAHO2BRLf-1E0xZ2sbNkqyWTAnM2MVAYKvkHPqY\",\n            \"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9sb2dpbiIsImlhdCI6MTczMzY4NDE4OSwiZXhwIjoxNzMzNjg3Nzg5LCJuYmYiOjE3MzM2ODQxODksImp0aSI6InhUMHA5S2hTdTdYRDBFZlciLCJzdWIiOiI1IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.hZ83gAHO2BRLf-1E0xZ2sbNkqyWTAnM2MVAYKvkHPqY\"\n        }\n    }\n}"
+						},
+						{
+							"name": "401",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"vardenis2@howkings.lt\",\n    \"password\": \"password2\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api_url}}/api/login",
+									"host": [
+										"{{api_url}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 08 Dec 2024 18:57:28 GMT"
+								},
+								{
+									"key": "Phpdebugbar-Id",
+									"value": "Xe2e507c2ab456ddb70ae46b81607622a"
+								},
+								{
+									"key": "Server",
+									"value": "Caddy"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.13"
+								},
+								{
+									"key": "X-Ratelimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-Ratelimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Content-Length",
+									"value": "62"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"error\",\n    \"message\": \"Invalid credentials\",\n    \"data\": null\n}"
 						}
 					]
 				},
@@ -562,7 +574,8 @@
 									"    pm.expect(Object.keys(responseData)).to.have.lengthOf(1);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -572,16 +585,6 @@
 						}
 					},
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [
 							{
@@ -614,12 +617,9 @@
 									}
 								],
 								"url": {
-									"raw": "https://bos.howkings.lt/api/logout",
-									"protocol": "https",
+									"raw": "{{api_url}}/api/logout",
 									"host": [
-										"bos",
-										"howkings",
-										"lt"
+										"{{api_url}}"
 									],
 									"path": [
 										"api",
@@ -794,21 +794,12 @@
 									"  pm.expect(responseData.expires_in).to.be.at.least(0);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [],
 						"url": {
@@ -829,12 +820,9 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "https://bos.howkings.lt/api/refresh",
-									"protocol": "https",
+									"raw": "{{api_url}}/api/refresh",
 									"host": [
-										"bos",
-										"howkings",
-										"lt"
+										"{{api_url}}"
 									],
 									"path": [
 										"api",
@@ -864,11 +852,11 @@
 								},
 								{
 									"key": "Date",
-									"value": "Sat, 07 Dec 2024 00:40:49 GMT"
+									"value": "Sun, 08 Dec 2024 18:59:57 GMT"
 								},
 								{
 									"key": "Phpdebugbar-Id",
-									"value": "Xaa00accf597c8db6e65b6da748be5b52"
+									"value": "Xbb52809d283a0de31b076d7ee7da431a"
 								},
 								{
 									"key": "Server",
@@ -892,11 +880,11 @@
 								},
 								{
 									"key": "Content-Length",
-									"value": "579"
+									"value": "419"
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9yZWZyZXNoIiwiaWF0IjoxNzMzNTMxOTYxLCJleHAiOjE3MzM1MzU2NDksIm5iZiI6MTczMzUzMjA0OSwianRpIjoiSDEyV05BODNXZkZGcW9JdSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.AuEN72wGVYuxOE9fHOXLDPcxwTzkll0J_q8FztJNxyg\",\n    \"token_type\": \"bearer\",\n    \"expires_in\": 3600,\n    \"user\": {\n        \"id\": 2,\n        \"person_id\": 2,\n        \"name\": \"Vardenis Pavardenis\",\n        \"email\": \"vardenis2@howkings.lt\",\n        \"email_verified_at\": null,\n        \"current_company_id\": null,\n        \"current_connected_account_id\": null,\n        \"profile_photo_path\": null,\n        \"created_at\": \"2024-12-07T00:23:36.000000Z\",\n        \"updated_at\": \"2024-12-07T00:23:36.000000Z\",\n        \"last_renew_password_at\": null,\n        \"profile_photo_url\": \"https://ui-avatars.com/api/?name=V+P&color=FFFFFF&background=111827\"\n    }\n}"
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Operation successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 5,\n            \"name\": \"Vardenis Pavardenis\",\n            \"email\": \"vardenis2@howkings.lt\",\n            \"roles\": [],\n            \"profile_image_url\": null\n        },\n        \"tokens\": {\n            \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9yZWZyZXNoIiwiaWF0IjoxNzMzNjg0Mzg5LCJleHAiOjE3MzM2ODc5OTcsIm5iZiI6MTczMzY4NDM5NywianRpIjoiMUtxZkI4TkQwWFZMazBuaiIsInN1YiI6IjUiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.KRyemuWA11MtZUXXp1MyrU2jrcherD3_m49hL6ORfg4\",\n            \"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vYm9zLmhvd2tpbmdzLmxvY2FsL2FwaS9yZWZyZXNoIiwiaWF0IjoxNzMzNjg0Mzg5LCJleHAiOjE3MzM2ODc5OTcsIm5iZiI6MTczMzY4NDM5NywianRpIjoiMUtxZkI4TkQwWFZMazBuaiIsInN1YiI6IjUiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.KRyemuWA11MtZUXXp1MyrU2jrcherD3_m49hL6ORfg4\"\n        }\n    }\n}"
 						}
 					]
 				},
@@ -945,12 +933,9 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://bos.howkings.lt/api/me",
-									"protocol": "https",
+									"raw": "{{api_url}}/api/me",
 									"host": [
-										"bos",
-										"howkings",
-										"lt"
+										"{{api_url}}"
 									],
 									"path": [
 										"api",
@@ -1009,7 +994,39 @@
 					]
 				}
 			],
-			"description": "How to register new account, authenticate, logout and refresh token"
+			"description": "How to register new account, authenticate, logout and refresh token",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
 		},
 		{
 			"name": "Request pool (module-request)",
@@ -1128,12 +1145,9 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://bos.howkings.lt/api/module-requests",
-									"protocol": "https",
+									"raw": "{{api_url}}/api/module-requests",
 									"host": [
-										"bos",
-										"howkings",
-										"lt"
+										"{{api_url}}"
 									],
 									"path": [
 										"api",
@@ -1336,12 +1350,9 @@
 									}
 								},
 								"url": {
-									"raw": "https://bos.howkings.lt/api/module-requests",
-									"protocol": "https",
+									"raw": "{{api_url}}/api/module-requests",
 									"host": [
-										"bos",
-										"howkings",
-										"lt"
+										"{{api_url}}"
 									],
 									"path": [
 										"api",
@@ -1461,12 +1472,9 @@
 									}
 								},
 								"url": {
-									"raw": "https://bos.howkings.lt/api/module-requests/vote",
-									"protocol": "https",
+									"raw": "{{api_url}}/api/module-requests/vote",
 									"host": [
-										"bos",
-										"howkings",
-										"lt"
+										"{{api_url}}"
 									],
 									"path": [
 										"api",
@@ -1820,6 +1828,39 @@
 					"path": [
 						"api",
 						"send-test-email"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "csrf-token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/api/csrf-token",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"api",
+						"csrf-token"
 					]
 				}
 			},

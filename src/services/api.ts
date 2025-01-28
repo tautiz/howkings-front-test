@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
+import { UserData } from './userDataService';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://bos.howkings.lt';
+const API_URL = '/api';
 
 interface ApiResponse<T = any> {
     status: 'success' | 'error';
@@ -23,21 +24,13 @@ interface RegisterData {
     password: string;
 }
 
-let pendingRequest: PendingRequest | null = null;
-
 const api = axios.create({
     baseURL: API_URL,
     headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
+        'Content-Type': 'application/json'
+    },
+    withCredentials: true
 });
-
-const showToast = (message: string, type: 'error' | 'success' | 'info' = 'error') => {
-    window.dispatchEvent(new CustomEvent('app:show-toast', {
-        detail: { message, type }
-    }));
-};
 
 // Add request interceptor to add auth token
 api.interceptors.request.use((config) => {
@@ -48,87 +41,129 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Add response interceptor to handle authentication errors
+// Response interceptor to handle unauthorized requests
 api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError<ApiResponse>) => {
-        const originalRequest = error.config;
-
-        // Handle 409 Conflict for duplicate votes
-        if (error.response?.status === 409) {
-            showToast(error.response.data?.message || 'Operation not allowed', 'error');
-            return Promise.reject(error);
-        }
-
-        // If error is Unauthenticated
         if (error.response?.status === 401) {
-            // Išvalome localStorage
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            
-            // Pranešame vartotojui
-            showToast('Sesija pasibaigė. Galite prisijungti paspaudę "Prisijungti" mygtuką.', 'info');
-            
-            // Dispatch event for any listeners
-            window.dispatchEvent(new Event('auth:token-invalid'));
+            // Išsaugome dabartinį requestą
+            const originalRequest = error.config;
+            if (originalRequest) {
+                pendingRequestsManager.setPendingRequest({
+                    method: originalRequest.method || 'GET',
+                    url: originalRequest.url || '',
+                    data: originalRequest.data
+                });
+                
+                // Dispatch event to show login modal
+                window.dispatchEvent(new CustomEvent('auth:required'));
+                
+                // Throw custom error to handle in UI
+                throw new Error('AUTH_REQUIRED');
+            }
         }
-
-        // Handle other errors
-        showToast(error.response?.data?.message || 'An error occurred', 'error');
         return Promise.reject(error);
     }
 );
 
+// PendingRequests valdymo funkcijos
+const pendingRequestsManager = {
+    setPendingRequest: (request: PendingRequest) => {
+        localStorage.setItem('pendingRequest', JSON.stringify(request));
+    },
+    getPendingRequest: (): PendingRequest | null => {
+        const stored = localStorage.getItem('pendingRequest');
+        return stored ? JSON.parse(stored) : null;
+    },
+    clearPendingRequest: () => {
+        localStorage.removeItem('pendingRequest');
+    },
+    executePendingRequest: async () => {
+        const request = pendingRequestsManager.getPendingRequest();
+        if (!request) return;
+
+        try {
+            await api({
+                method: request.method,
+                url: request.url,
+                data: request.data
+            });
+            pendingRequestsManager.clearPendingRequest();
+        } catch (error) {
+            console.error('Failed to execute pending request:', error);
+        }
+    }
+};
+
 // Auth endpoints
-import { loginRateLimit, registrationRateLimit } from './rateLimitService';
+import { registrationRateLimit } from './rateLimitService';
 
 export const register = async (data: RegisterData) => {
-    const key = `register_${data.email}`;
-    if (!registrationRateLimit.canAttempt(key)) {
-        const remainingTime = Math.ceil(registrationRateLimit.getRemainingTime(key) / 1000);
+    const key = `registration_${data.email}`;
+    if (!registrationRateLimit.canMakeRequest(key)) {
+        const remainingTime = registrationRateLimit.getRemainingTime(key);
         throw new Error(`Per daug bandymų. Bandykite dar kartą po ${remainingTime} sekundžių.`);
     }
 
-    const response = await api.post<ApiResponse>('/api/register', data);
+    const response = await api.post<ApiResponse>('/register', data);
     registrationRateLimit.reset(key);
     return response;
 };
 
-export const login = async (email: string, password: string) => {
-    const key = `login_${email}`;
-    if (!loginRateLimit.canAttempt(key)) {
-        const remainingTime = Math.ceil(loginRateLimit.getRemainingTime(key) / 1000);
-        throw new Error(`Per daug bandymų. Bandykite dar kartą po ${remainingTime} sekundžių.`);
-    }
-
-    const response = await api.post<ApiResponse>('/api/login', { email, password });
-    loginRateLimit.reset(key);
-    const { access_token } = response.data.data || {};
-    
-    if (access_token) {
-        localStorage.setItem('access_token', access_token);
+export async function login(email: string, password: string) {
+    try {
+        const response = await api.post<ApiResponse>('/login', { email, password });
         
-        // Dispatch login success event
-        window.dispatchEvent(new CustomEvent('auth:login-success'));
+        if (response.data.status === 'success' && response.data.data?.tokens?.access_token) {
+            const { tokens, user } = response.data.data;
+            
+            // Išsaugome tokenus
+            localStorage.setItem('access_token', tokens.access_token);
+            localStorage.setItem('refresh_token', tokens.refresh_token);
+            
+            // Išsaugome vartotojo duomenis
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            return {
+                status: 'success',
+                data: {
+                    user,
+                    access_token: tokens.access_token
+                }
+            };
+        }
+        
+        return {
+            status: 'error',
+            error: 'Invalid email or password'
+        };
+    } catch (error) {
+        console.error('Login error:', error);
+        return {
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Login failed'
+        };
     }
-    
-    return response;
+}
+
+export const validateToken = async (): Promise<UserData> => {
+    const response = await api.get<ApiResponse<{ user: UserData }>>('/me');
+    if (response.data.status === 'success' && response.data.data?.user) {
+        return response.data.data.user;
+    }
+    throw new Error(response.data.message || 'Failed to validate token');
 };
 
-export const validateToken = () => api.get<ApiResponse>('/auth/validate-token');
 export const refreshToken = (refreshToken: string) => 
-    api.post<ApiResponse>('/auth/refresh-token', { refresh_token: refreshToken });
+    api.post<ApiResponse>('/refresh-token', { refresh_token: refreshToken });
 
-export const logout = async () => {
-    try {
-        await api.post<ApiResponse>('/api/logout');
-    } finally {
-        localStorage.removeItem('access_token');
-    }
+export const logout = () => {
+    localStorage.removeItem('access_token');
+    return api.post<ApiResponse>('/logout');
 };
 
 export const deleteAccount = () => {
-    return api.delete(`${API_URL}/auth/account`, {
+    return api.delete('/me', {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         }
@@ -136,63 +171,108 @@ export const deleteAccount = () => {
 };
 
 // Request pool endpoints
-export const listRequests = () => api.get<ApiResponse>('/api/module-requests');
+export const listRequests = async () => {
+    try {
+        const response = await api.get<ApiResponse>('/module-requests');
+        if (response.data?.data) {
+            return response.data.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('List requests error:', error);
+        return [];
+    }
+};
 
 export const createRequest = (data: {
     module_name: string;
     description: string;
     language: string;
     tags: string[];
-}) => api.post<ApiResponse>('/api/module-requests', data);
+}) => api.post<ApiResponse>('/module-requests', data);
 
 // Balsavimo būsenos interfeisas
-interface VoteResponse extends ApiResponse {
+interface VoteResponse {
+    status: 'success' | 'error';
     data?: {
         votes: number;
     };
+    error?: string;
+    message?: string;
 }
 
 // Balsavimo klaidos
 export enum VoteError {
     ALREADY_VOTED = 'ALREADY_VOTED',
     NOT_AUTHENTICATED = 'NOT_AUTHENTICATED',
-    MODULE_NOT_FOUND = 'MODULE_NOT_FOUND'
+    MODULE_NOT_FOUND = 'MODULE_NOT_FOUND',
+    UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
-// Balsavimo funkcija su klaidų valdymu
+// Balsavimo funkcija su geresniu klaidų apdorojimu ir kalbos nustatymu
 export const addVote = async (moduleRequestId: number): Promise<VoteResponse> => {
     try {
-        // Patikriname autentifikaciją
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            throw new Error(VoteError.NOT_AUTHENTICATED);
-        }
+        // Gauname vartotojo kalbą iš naršyklės arba localStorage
+        const userLanguage = localStorage.getItem('user_language') || navigator.language.split('-')[0].toUpperCase() || 'EN';
 
-        const response = await api.post<VoteResponse>(`/api/module-requests/vote`, {
-            module_request_id: moduleRequestId,
-            language: "EN"
+        const response = await api.post<VoteResponse>(`/module-requests/vote`, {
+            module_request_id: moduleRequestId.toString(),
+            language: userLanguage
         });
 
-        // Optimistinis UI atnaujinimas
-        if (response.data?.status === 'success') {
-            // Įvykio paleidimas UI atnaujinimui
-            window.dispatchEvent(new CustomEvent('module:voted', {
-                detail: {
-                    moduleId: moduleRequestId,
-                    votes: response.data.data?.votes || 0
-                }
-            }));
+        return {
+            status: 'success',
+            data: {
+                votes: response.data.data?.votes || 0
+            },
+            message: response.data.message
+        };
+    } catch (error) {
+        console.error('Vote error:', error);
+
+        if (error instanceof AxiosError) {
+            if (error.response?.status === 401) {
+                return {
+                    status: 'error',
+                    error: VoteError.NOT_AUTHENTICATED
+                };
+            }
+
+            if (error.response?.status === 409) {
+                return {
+                    status: 'error',
+                    error: VoteError.ALREADY_VOTED
+                };
+            }
+
+            if (error.response?.status === 404) {
+                return {
+                    status: 'error',
+                    error: VoteError.MODULE_NOT_FOUND
+                };
+            }
         }
 
-        return response.data;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            const errorMessage = error.response?.data?.error || 'Balsavimo klaida';
-            showToast(errorMessage, 'error');
-            throw new Error(errorMessage);
-        }
-        throw error;
+        return {
+            status: 'error',
+            error: VoteError.UNKNOWN_ERROR
+        };
     }
 };
+
+// Išplečiame AxiosInstance tipą
+declare module 'axios' {
+    interface AxiosInstance {
+        addVote(moduleRequestId: number): Promise<VoteResponse>;
+        register(data: RegisterData): Promise<ApiResponse>;
+        login(email: string, password: string): Promise<ApiResponse>;
+        validateToken(): Promise<ApiResponse>;
+        refreshToken(refreshToken: string): Promise<ApiResponse>;
+        logout(): Promise<ApiResponse>;
+        deleteAccount(): Promise<ApiResponse>;
+        listRequests(): Promise<ApiResponse>;
+        createRequest(data: { module_name: string; description: string; language: string; tags: string[]; }): Promise<ApiResponse>;
+    }
+}
 
 export default api;

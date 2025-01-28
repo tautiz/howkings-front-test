@@ -152,4 +152,27 @@ export const translations = {
       trial: 'Free trial period'
     }
   },
+  requestPool: {
+    errors: {
+      fetchFailed: 'Failed to fetch requests. Please try again later.',
+      loginRequired: 'Please sign in to vote',
+      alreadyVoted: 'You have already voted for this module',
+      moduleNotFound: 'Module not found',
+      voteFailed: 'An error occurred while voting. Please try again.',
+    },
+    success: {
+      voteRegistered: 'Your vote has been successfully registered!',
+    },
+    loading: 'Loading modules...',
+    loginPrompt: 'You need to be signed in to vote.',
+    loginButton: 'Sign In',
+    searchPlaceholder: 'Search modules...',
+    addRequestButton: 'Add Request',
+    sort: {
+      label: 'Sort by:',
+      votes: 'Votes',
+      date: 'Date',
+      name: 'Name'
+    }
+  },
 };

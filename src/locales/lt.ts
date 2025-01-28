@@ -152,4 +152,27 @@ export const translations = {
       trial: 'Nemokamas bandomasis laikotarpis'
     }
   },
+  requestPool: {
+    errors: {
+      fetchFailed: 'Nepavyko gauti užklausų. Bandykite dar kartą vėliau.',
+      loginRequired: 'Prašome prisijungti, kad galėtumėte balsuoti',
+      alreadyVoted: 'Jūs jau balsavote už šį modulį',
+      moduleNotFound: 'Modulis nerastas',
+      voteFailed: 'Įvyko klaida balsuojant. Bandykite dar kartą.',
+    },
+    success: {
+      voteRegistered: 'Jūsų balsas sėkmingai užskaitytas!',
+    },
+    loading: 'Kraunami moduliai...',
+    loginPrompt: 'Norėdami balsuoti, turite būti prisijungę.',
+    loginButton: 'Prisijungti',
+    searchPlaceholder: 'Ieškoti modulių...',
+    addRequestButton: 'Pridėti užklausą',
+    sort: {
+      label: 'Rūšiuoti pagal:',
+      votes: 'Balsai',
+      date: 'Data',
+      name: 'Pavadinimas'
+    }
+  },
 };

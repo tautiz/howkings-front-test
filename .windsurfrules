@@ -2,3 +2,70 @@ For all designs I ask you to make, have them be beautiful, not cookie cutter. Ma
 By default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.
 Use icons from lucide-react for logos.
 Use stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.
+
+## LLMs.txt Maintenance Requirements 🤖
+
+The `llms.txt` file in our project root serves as a crucial documentation source for Large Language Models (LLMs). This markdown file provides essential information about our website's structure, features, and navigation.
+
+### When to Update llms.txt
+
+The `llms.txt` file MUST be updated in the following cases:
+
+1. When implementing new features
+2. When modifying existing functionality
+3. When changing navigation structure
+4. When adding new components
+5. When updating supported languages
+6. When modifying feature configurations
+
+### Update Process
+
+1. Locate `llms.txt` in the project root
+2. Add or modify relevant sections:
+   - Core features
+   - Navigation paths
+   - Component structure
+   - Feature configurations
+3. Commit changes with a descriptive message
+4. Include llms.txt updates in your PR
+
+### Purpose
+
+The `llms.txt` file helps LLMs better understand our website structure and provide accurate assistance for:
+
+- Code maintenance
+- Feature development
+- Documentation
+- User support
+
+## How to Document New Features
+
+1. Create a new ADR file: `NNNN-feature-name.md`
+   - Use the next available number for `NNNN`
+   - Choose a descriptive name for the feature
+
+2. Follow the standard ADR format:
+   - Title and date
+   - Status (Proposed, Accepted, Deprecated, Superseded)
+   - Context (problem description and current situation)
+   - Decision (detailed solution)
+   - Consequences (positive and negative outcomes)
+
+3. Update the ADR list in this README.md file
+   - Add a new entry with a link to the new ADR file
+
+4. Submit a Pull Request for review
+   - Include both the new ADR file and the updated README.md
+
+5. Update the `llms.txt` file if the new feature affects:
+   - Core functionality
+   - Navigation structure
+   - Component hierarchy
+   - Supported languages
+   - Feature configurations
+
+6. Ensure all documentation is consistent across:
+   - ADR files
+   - README.md
+   - llms.txt
+   - Code comments

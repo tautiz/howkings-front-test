@@ -3,11 +3,18 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import * as api from '../services/api';
 import { analyticsService } from '../services/analyticsService';
 import { tokenValidationService } from '../services/tokenValidationService';
+import { AuthFormType } from '../components/Auth';
 
 interface User {
   id: string;
   email: string;
   name: string;
+}
+
+interface PendingAction {
+  type: 'vote' | 'create_request';
+  payload: any;
+  onComplete?: () => void;
 }
 
 interface AuthContextType {
@@ -19,6 +26,10 @@ interface AuthContextType {
   logout: () => Promise<void>;
   handleInvalidToken: () => void;
   deleteAccount: () => Promise<void>;
+  setPendingAction: (action: PendingAction | null) => void;
+  setAuthForm: (form: AuthFormType) => void;
+  pendingAction: PendingAction | null;
+  authForm: AuthFormType | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +38,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [authForm, setAuthForm] = useState<AuthFormType | null>(null);
 
   const handleInvalidToken = () => {
     setUser(null);
@@ -45,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           const userData = await tokenValidationService.validateToken();
+          console.log('User data:', userData);
           setUser(userData);
         } catch (error) {
           // Jei klaida - tiesiog išvalome duomenis
@@ -61,35 +75,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
       const response = await api.login(email, password);
       
-      if (response.data.status === 'success') {
-        const { user: userData, tokens } = response.data.data;
-        
+      if (response.status === 'success' && response.data?.user) {
         // Išsaugom vartotojo duomenis
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        tokenValidationService.saveTokens(tokens.access_token, tokens.refresh_token);
-
+        setUser(response.data.user);
+        
         // Siunčiam analytics įvykį
         analyticsService.trackEvent({
           action: 'login',
           category: 'auth',
           label: 'success'
         });
+        
+        // Execute pending action if exists
+        if (pendingAction) {
+          if (pendingAction.type === 'vote') {
+            await api.addVote(pendingAction.payload.moduleRequestId);
+          } else if (pendingAction.type === 'create_request') {
+            await api.createRequest(pendingAction.payload.data);
+          }
+          pendingAction.onComplete?.();
+          setPendingAction(null);
+        }
       } else {
-        throw new Error(response.data.message || 'Unknown error occurred');
+        throw new Error(response.error || 'Login failed');
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Įvyko nenumatyta klaida';
-      setError(errorMessage);
-      
-      // Siunčiam analytics įvykį apie klaidą
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed');
       analyticsService.trackEvent({
         action: 'login',
         category: 'auth',
         label: 'error'
       });
-      
-      throw err;
+      throw error;
     }
   };
 
@@ -196,18 +213,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        error,
-        login,
-        register,
-        logout,
-        handleInvalidToken,
-        deleteAccount
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: user !== null,
+      error,
+      login,
+      register,
+      logout,
+      handleInvalidToken,
+      deleteAccount,
+      setPendingAction,
+      setAuthForm,
+      pendingAction,
+      authForm
+    }}>
       {children}
     </AuthContext.Provider>
   );
